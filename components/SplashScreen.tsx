@@ -1,14 +1,12 @@
 import { useState, useEffect } from "react";
-import { Sparkles, GraduationCap } from "lucide-react";
 
 export function SplashScreen({ onFinish }: { onFinish: () => void }) {
   const [fadingOut, setFadingOut] = useState(false);
 
   useEffect(() => {
-    // 2.3 seconds ke baad cinematic zoom-out fade trigger hoga
     const timer = setTimeout(() => {
       setFadingOut(true);
-      setTimeout(onFinish, 550);
+      setTimeout(onFinish, 500);
     }, 2300);
 
     return () => clearTimeout(timer);
@@ -20,7 +18,7 @@ export function SplashScreen({ onFinish }: { onFinish: () => void }) {
         position: "fixed",
         inset: 0,
         zIndex: 999999,
-        backgroundColor: "#030712",
+        background: "radial-gradient(circle at 50% 40%, #FFF9EE 0%, #FBF3E3 100%)",
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
@@ -28,236 +26,66 @@ export function SplashScreen({ onFinish }: { onFinish: () => void }) {
         overflow: "hidden",
         userSelect: "none",
         opacity: fadingOut ? 0 : 1,
-        transform: fadingOut ? "scale(1.08)" : "scale(1)",
-        filter: fadingOut ? "blur(4px)" : "none",
-        transition: "opacity 0.55s cubic-bezier(0.4, 0, 0.2, 1), transform 0.55s cubic-bezier(0.4, 0, 0.2, 1), filter 0.55s ease",
+        transform: fadingOut ? "scale(1.05)" : "scale(1)",
+        transition: "opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1), transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)",
       }}
     >
-      {/* Dynamic Keyframe Styles */}
       <style>{`
-        @keyframes cinematicZoom {
-          0% {
-            opacity: 0;
-            transform: scale(0.75) translateY(20px);
-            filter: blur(12px);
-          }
-          40% {
-            opacity: 1;
-            transform: scale(1.03) translateY(0);
-            filter: blur(0px);
-          }
-          100% {
-            opacity: 1;
-            transform: scale(1) translateY(0);
-          }
+        @keyframes shardFly {
+          0% { opacity: 0; transform: translate(var(--fx), var(--fy)) rotate(var(--fr)) scale(0.5); }
+          70% { opacity: 1; }
+          100% { opacity: 1; transform: translate(0,0) rotate(0) scale(1); }
         }
-
-        @keyframes emblemAura {
-          0% {
-            transform: scale(0.6) rotate(-8deg);
-            opacity: 0;
-            box-shadow: 0 0 0 rgba(37, 99, 235, 0);
-          }
-          50% {
-            transform: scale(1.08) rotate(0deg);
-            opacity: 1;
-            box-shadow: 0 0 60px rgba(59, 130, 246, 0.6);
-          }
-          100% {
-            transform: scale(1) rotate(0deg);
-            box-shadow: 0 0 40px rgba(37, 99, 235, 0.4);
-          }
+        @keyframes ringPop {
+          from { opacity: 0; transform: scale(0); }
+          to { opacity: 1; transform: scale(1); }
         }
-
-        @keyframes letterReveal {
-          0% {
-            letter-spacing: -2px;
-            opacity: 0;
-            filter: blur(8px);
-          }
-          60% {
-            letter-spacing: 7px;
-            opacity: 1;
-            filter: blur(0px);
-          }
-          100% {
-            letter-spacing: 5px;
-            opacity: 1;
-          }
+        @keyframes ringPulse {
+          0%, 100% { box-shadow: 0 0 0 0 rgba(201,98,42,0.3); }
+          50% { box-shadow: 0 0 0 12px rgba(201,98,42,0); }
         }
-
-        @keyframes shimmerSweep {
-          0% {
-            transform: translateX(-150%) skewX(-25deg);
-          }
-          100% {
-            transform: translateX(250%) skewX(-25deg);
-          }
+        @keyframes wordRise {
+          from { opacity: 0; transform: translateY(14px); }
+          to { opacity: 1; transform: translateY(0); }
         }
-
-        @keyframes pulseRadial {
-          0% {
-            opacity: 0.25;
-            transform: scale(0.85);
-          }
-          50% {
-            opacity: 0.65;
-            transform: scale(1.15);
-          }
-          100% {
-            opacity: 0.25;
-            transform: scale(0.85);
-          }
+        .sp-shard { position: absolute; opacity: 0; animation: shardFly 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+        .sp-ring {
+          position: absolute; width: 46px; height: 46px; border-radius: 50%;
+          border: 3px solid #C9622A; opacity: 0;
+          animation: ringPop 0.5s ease-out 0.75s forwards, ringPulse 2s ease-in-out 1.3s infinite;
         }
-
-        @keyframes beamProgress {
-          0% {
-            width: 0%;
-            opacity: 0.4;
-          }
-          50% {
-            width: 70%;
-            opacity: 1;
-          }
-          100% {
-            width: 100%;
-            opacity: 0.9;
-          }
-        }
+        .sp-wordmark { opacity: 0; animation: wordRise 0.7s cubic-bezier(0.16,1,0.3,1) 0.95s forwards; }
       `}</style>
 
-      {/* Cinematic Radial Background Glow (Netflix style center spotlight) */}
-      <div
-        style={{
-          position: "absolute",
-          width: "550px",
-          height: "550px",
-          borderRadius: "50%",
-          background: "radial-gradient(circle, rgba(37, 99, 235, 0.28) 0%, rgba(99, 102, 241, 0.12) 40%, transparent 70%)",
-          animation: "pulseRadial 3s infinite ease-in-out",
-          pointerEvents: "none",
-        }}
-      />
+      <div style={{ position: "relative", width: "220px", height: "220px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <svg className="sp-shard" style={{ "--fx": "-160px", "--fy": "-120px", "--fr": "-40deg", animationDelay: "0.1s" } as any} width="60" height="60" viewBox="0 0 60 60">
+          <path d="M30 5 L55 20 L30 30 L5 20 Z" fill="#2E5FA3" />
+        </svg>
+        <svg className="sp-shard" style={{ "--fx": "170px", "--fy": "-100px", "--fr": "35deg", animationDelay: "0.2s" } as any} width="50" height="50" viewBox="0 0 50 50">
+          <rect x="5" y="20" width="40" height="8" rx="2" fill="#3E8E5C" />
+        </svg>
+        <svg className="sp-shard" style={{ "--fx": "-150px", "--fy": "130px", "--fr": "50deg", animationDelay: "0.3s" } as any} width="46" height="46" viewBox="0 0 46 46">
+          <circle cx="23" cy="23" r="18" fill="none" stroke="#E8B23D" strokeWidth="4" />
+        </svg>
+        <svg className="sp-shard" style={{ "--fx": "160px", "--fy": "140px", "--fr": "-45deg", animationDelay: "0.4s" } as any} width="34" height="60" viewBox="0 0 34 60">
+          <rect x="14" y="0" width="6" height="45" fill="#2E5FA3" />
+          <path d="M4 45h26l-2 12H6z" fill="#D9622A" />
+        </svg>
+        <svg className="sp-shard" style={{ "--fx": "0px", "--fy": "-170px", "--fr": "20deg", animationDelay: "0.5s" } as any} width="30" height="30" viewBox="0 0 30 30">
+          <path d="M15 2l4 9 10 1-7.5 7 2 10-8.5-5.5L6.5 29l2-10L1 12l10-1z" fill="#E8B23D" />
+        </svg>
+        <div className="sp-ring" />
+      </div>
 
-      <div
-        style={{
-          position: "relative",
-          zIndex: 10,
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          textAlign: "center",
-          padding: "0 24px",
-          animation: "cinematicZoom 1.1s cubic-bezier(0.16, 1, 0.3, 1) forwards",
-        }}
-      >
-        {/* Glowing 3D Emblem with Gradient & Flare */}
-        <div
-          style={{
-            position: "relative",
-            width: "80px",
-            height: "80px",
-            borderRadius: "24px",
-            background: "linear-gradient(135deg, #1d4ed8 0%, #4338ca 50%, #6366f1 100%)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            marginBottom: "24px",
-            border: "1.5px solid rgba(255, 255, 255, 0.25)",
-            animation: "emblemAura 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards",
-            overflow: "hidden",
-          }}
-        >
-          {/* Light Sweep over Icon */}
-          <div
-            style={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              width: "100%",
-              height: "100%",
-              background: "linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.45), transparent)",
-              animation: "shimmerSweep 1.8s infinite",
-            }}
-          />
-          <GraduationCap style={{ width: "42px", height: "42px", color: "#ffffff", filter: "drop-shadow(0 2px 8px rgba(0,0,0,0.4))" }} />
+      <div className="sp-wordmark" style={{ position: "relative", top: "20px", textAlign: "center" }}>
+        <div style={{ fontFamily: "'Fraunces', serif", fontWeight: 600, fontSize: "46px", color: "#2B2620", lineHeight: 1 }}>
+          THE BIG
         </div>
-
-        {/* Cinematic Title with Expanding Tracking & Shimmer */}
-        <div style={{ position: "relative", overflow: "hidden", padding: "4px 12px" }}>
-          <h1
-            style={{
-              fontSize: "clamp(28px, 6vw, 42px)",
-              fontWeight: "900",
-              margin: 0,
-              fontFamily: "'Cinzel', 'Playfair Display', serif, system-ui",
-              textTransform: "uppercase",
-              background: "linear-gradient(180deg, #ffffff 20%, #cbd5e1 75%, #94a3b8 100%)",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-              textShadow: "0 0 35px rgba(59, 130, 246, 0.5)",
-              animation: "letterReveal 1.3s cubic-bezier(0.16, 1, 0.3, 1) forwards",
-            }}
-          >
-            THE BIG CLASSES
-          </h1>
-
-          {/* Shimmer Light passing across title text */}
-          <div
-            style={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              width: "50%",
-              height: "100%",
-              background: "linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent)",
-              animation: "shimmerSweep 2s infinite ease-in-out",
-              pointerEvents: "none",
-            }}
-          />
+        <div style={{ fontFamily: "'Fraunces', serif", fontWeight: 600, fontSize: "46px", color: "#C9622A", lineHeight: 1 }}>
+          CLASSES
         </div>
-
-        {/* Subtitle with High-Tech Glow */}
-        <p
-          style={{
-            fontSize: "11px",
-            letterSpacing: "3.5px",
-            color: "#93c5fd",
-            textTransform: "uppercase",
-            fontWeight: "700",
-            margin: "10px 0 28px 0",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: "8px",
-            opacity: 0.9,
-          }}
-        >
-          <Sparkles style={{ width: "13px", height: "13px", color: "#60a5fa" }} />
-          AI PROCTOR & LEARNING ARENA
-        </p>
-
-        {/* Sleek Laser Loading Line (Netflix red-bar inspired) */}
-        <div
-          style={{
-            width: "200px",
-            height: "3px",
-            backgroundColor: "rgba(255, 255, 255, 0.08)",
-            borderRadius: "9999px",
-            overflow: "hidden",
-            position: "relative",
-            boxShadow: "0 0 10px rgba(37, 99, 235, 0.3)",
-          }}
-        >
-          <div
-            style={{
-              height: "100%",
-              background: "linear-gradient(90deg, #2563eb, #60a5fa, #c084fc)",
-              borderRadius: "9999px",
-              boxShadow: "0 0 12px #3b82f6",
-              animation: "beamProgress 2s cubic-bezier(0.4, 0, 0.2, 1) forwards",
-            }}
-          />
+        <div style={{ fontSize: "11px", letterSpacing: "0.15em", color: "#8A8272", marginTop: "10px", fontWeight: 700 }}>
+          LEARN · ASSESS · GROW
         </div>
       </div>
     </div>
