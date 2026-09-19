@@ -21,6 +21,10 @@ export interface ExamCandidate {
   score?: number;
   total?: number;
   percentage?: number;
+  /** True when the server's audit found the submission past the deadline. */
+  overtime?: boolean;
+  /** Minutes past the deadline, set only when overtime is true. */
+  overtimeMinutes?: number;
   updatedAt: string;
 }
 
@@ -174,13 +178,14 @@ export async function exportCandidatesToCSV(roomCode?: string): Promise<void> {
     return;
   }
 
-  const headers = ["Student Name", "Email", "Room Code", "Status", "Strikes", "Score", "Total", "Percentage", "Time"];
+  const headers = ["Student Name", "Email", "Room Code", "Status", "Strikes", "Overtime", "Score", "Total", "Percentage", "Time"];
   const rows = data.map((c) => [
     `"${c.studentName}"`,
     `"${c.studentEmail || "N/A"}"`,
     `"${c.roomCode}"`,
     `"${c.status}"`,
     c.violations || 0,
+    c.overtime ? `"Yes (+${c.overtimeMinutes || 0}m)"` : "No",
     c.score ?? 0,
     c.total ?? 0,
     `"${c.percentage ?? 0}%"`,

@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { findExamRoom, updateCandidateStatus, hasStudentAttempted, ExamCandidate } from "../lib/room-store";
 import { useProctor } from "../hooks/use-proctor";
 import { useAuth } from "../lib/auth-context";
 import { getAuthHeaders } from "../lib/firebase";
@@ -37,6 +36,7 @@ export function StudentPortal() {
   const [pinError, setPinError] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
+  const [startingExam, setStartingExam] = useState(false);
 
   const [activeQuestions, setActiveQuestions] = useState<QuestionItem[]>([]);
   const [quizTitle, setQuizTitle] = useState("Proctored Examination");
@@ -46,76 +46,30 @@ export function StudentPortal() {
   const [timeLeft, setTimeLeft] = useState(600);
   const [score, setScore] = useState(0);
 
+  // The authoritative deadline (server epoch ms). The visible countdown derives
+  // from this, never from an independent browser timer.
+  const deadlineRef = useRef<number | null>(null);
+
   // Refs so the proctor's onAutoSubmit callback (created once) always sees the latest
-  // answers/questions without us having to rebuild the listeners on every keystroke.
+  // answers without us having to rebuild the listeners on every keystroke.
   const selectedAnswersRef = useRef(selectedAnswers);
-  const activeQuestionsRef = useRef<QuestionItem[]>([]);
   useEffect(() => { selectedAnswersRef.current = selectedAnswers; }, [selectedAnswers]);
-  useEffect(() => { activeQuestionsRef.current = activeQuestions; }, [activeQuestions]);
 
   const handleAutoSubmit = useCallback(() => {
-    triggerFinalSubmit(selectedAnswersRef.current, activeQuestionsRef.current, 3);
+    triggerFinalSubmit(selectedAnswersRef.current);
   }, []);
 
-  const { violations: strikes, resetViolations } = useProctor({
+  const {
+    violations: strikes,
+    resetViolations,
+    enterFullscreen,
+    exitFullscreen,
+  } = useProctor({
     maxViolations: 3,
     enabled: examStarted && !examSubmitted,
     onAutoSubmit: handleAutoSubmit,
+    roomCode: examPin.trim().toUpperCase(),
   });
-
-  const syncCandidateToRoomStore = async (
-    status: "in-progress" | "completed" | "disqualified",
-    finalScore?: number
-  ) => {
-    const cleanPin = examPin.trim().toUpperCase();
-    if (!cleanPin || !studentName.trim()) return;
-
-    try {
-      const currentScore = finalScore !== undefined ? finalScore : score;
-      const totalQ = activeQuestions.length || 1;
-      const pct = Math.round((currentScore / totalQ) * 100);
-
-      const candidateRecord: ExamCandidate = {
-        studentName: studentName.trim(),
-        studentEmail: studentEmail.trim() || undefined,
-        roomCode: cleanPin,
-        score: currentScore,
-        total: totalQ,
-        percentage: pct,
-        status: status,
-        violations: strikes,
-        updatedAt: new Date().toISOString(),
-      };
-
-      await updateCandidateStatus(candidateRecord);
-    } catch (e) {
-      console.error("Failed to sync candidate state:", e);
-    }
-  };
-
-  // Whenever the shared proctor hook records a new strike, mirror it to Firestore so
-  // the teacher's live candidate table reflects it in near real time.
-  useEffect(() => {
-    if (!examStarted || examSubmitted || strikes === 0 || strikes >= 3) return;
-    syncCandidateToRoomStore("in-progress");
-  }, [strikes]);
-
-  useEffect(() => {
-    if (!examStarted || examSubmitted) return;
-
-    const timer = setInterval(() => {
-      setTimeLeft((prev) => {
-        if (prev <= 1) {
-          clearInterval(timer);
-          triggerFinalSubmit(selectedAnswers, activeQuestions, strikes);
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, [examStarted, examSubmitted, selectedAnswers, activeQuestions, strikes]);
 
   const handleStartExam = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -128,46 +82,39 @@ export function StudentPortal() {
       return;
     }
 
-    setSubmitting(true);
+    setStartingExam(true);
     try {
-      const room = await findExamRoom(cleanPin);
+      // The SERVER starts the session: it records the deadline, shuffles the
+      // question order for this student, and owns the strike counter from here on.
+      const authHeaders = await getAuthHeaders();
+      const res = await fetch("/api/exam-session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", ...authHeaders },
+        body: JSON.stringify({ roomCode: cleanPin }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.error || "Could not start the exam");
 
-      if (!room) {
-        setPinError(`Room PIN "${cleanPin}" not found. Please verify with faculty.`);
-        return;
-      }
-
-      if (room.status === "closed") {
-        setPinError(`Room PIN "${cleanPin}" has already been closed by faculty.`);
-        return;
-      }
-
-      if (!room.questions || room.questions.length === 0) {
-        setPinError("This exam room contains no active questions.");
-        return;
-      }
-
-      const alreadyAttempted = await hasStudentAttempted(studentEmail.trim(), cleanPin);
-      if (alreadyAttempted) {
-        setPinError("You have already attempted this exam. Each student can only take a given exam once.");
-        return;
-      }
-
-      setActiveQuestions(room.questions);
-      setQuizTitle(room.topic || "Proctored Examination");
-      setTimeLeft((room.durationMinutes || 10) * 60);
+      setActiveQuestions(data.questions || []);
+      setQuizTitle(data.topic || "Proctored Examination");
+      // The countdown mirrors the server's deadline (minus network delay) — a
+      // laptop clock change can no longer buy extra time.
+      const remainingSec = Math.max(0, Math.floor((data.deadlineAt - data.serverNow) / 1000));
+      setTimeLeft(remainingSec);
+      deadlineRef.current = data.deadlineAt;
       setExamStarted(true);
       setExamSubmitted(false);
       resetViolations();
       setCurrentQuestionIdx(0);
       setSelectedAnswers({});
 
-      setTimeout(() => syncCandidateToRoomStore("in-progress"), 100);
+      // Lock the screen into fullscreen right after the Start click's user gesture.
+      enterFullscreen();
     } catch (err) {
       console.error("Failed to start exam:", err);
-      setPinError("Something went wrong while loading the exam. Please try again.");
+      setPinError(err instanceof Error ? err.message : "Something went wrong while loading the exam. Please try again.");
     } finally {
-      setSubmitting(false);
+      setStartingExam(false);
     }
   };
 
@@ -178,29 +125,25 @@ export function StudentPortal() {
     }));
   };
 
-  const triggerFinalSubmit = async (
-    answers: { [key: number]: number },
-    questions: QuestionItem[],
-    currentStrikes = strikes
-  ) => {
+  const triggerFinalSubmit = async (answers: { [key: number]: number }) => {
     // Lock the UI immediately so a slow network response can't let the student
     // keep answering (or double-submit) while grading is in flight.
     setExamSubmitted(true);
     setSubmitError("");
+    exitFullscreen();
 
     try {
-      // The server only grades a request carrying a verified Firebase ID token whose
-      // email matches the candidate, so this must be authenticated too.
+      // The server grades from its own session record: it knows the question
+      // order, the deadline and the strike count. None of those come from here.
       const authHeaders = await getAuthHeaders();
       const res = await fetch("/api/grade-exam", {
         method: "POST",
         headers: { "Content-Type": "application/json", ...authHeaders },
         body: JSON.stringify({
           roomCode: examPin.trim().toUpperCase(),
-          studentName: studentName.trim(),
-          studentEmail: studentEmail.trim(),
-          answers,
-          strikes: currentStrikes,
+          answers: Object.keys(answers)
+            .sort((a, b) => Number(a) - Number(b))
+            .map((k) => answers[Number(k)]),
         }),
       });
 
@@ -222,6 +165,35 @@ export function StudentPortal() {
     return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
   };
 
+  // Countdown mirrors the server's deadline (authoritative); at zero the exam is
+  // force-submitted and the server's overtime audit has the final say.
+  useEffect(() => {
+    if (!examStarted || examSubmitted) return;
+
+    const timer = setInterval(() => {
+      if (deadlineRef.current) {
+        const remaining = Math.max(0, Math.ceil((deadlineRef.current - Date.now()) / 1000));
+        setTimeLeft(remaining);
+        if (remaining <= 0) {
+          clearInterval(timer);
+          triggerFinalSubmit(selectedAnswersRef.current);
+        }
+        return;
+      }
+      // Fallback if no deadline was recorded (shouldn't happen).
+      setTimeLeft((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          triggerFinalSubmit(selectedAnswersRef.current);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [examStarted, examSubmitted]);
+
   const handleBackToDesk = () => {
     setExamStarted(false);
     setExamSubmitted(false);
@@ -232,6 +204,8 @@ export function StudentPortal() {
     setSubmitError("");
     resetViolations();
     setExamPin("");
+    deadlineRef.current = null;
+    exitFullscreen();
   };
 
   const escapeHtml = (value: string) =>
@@ -360,12 +334,12 @@ export function StudentPortal() {
 
               <Button
                 type="submit"
-                disabled={submitting}
+                disabled={submitting || startingExam}
                 className="w-full bg-brand-600 hover:bg-brand-500 text-on-brand font-bold py-3 text-sm rounded-xl shadow-lg shadow-brand-600/30 transition-all disabled:opacity-60 flex items-center justify-center gap-2"
               >
-                {submitting ? (
+                {startingExam ? (
                   <>
-                    <Loader2 className="w-4 h-4 animate-spin" /> Verifying...
+                    <Loader2 className="w-4 h-4 animate-spin" /> Loading secure session...
                   </>
                 ) : (
                   "Authenticate & Load Faculty Exam"
@@ -455,7 +429,7 @@ export function StudentPortal() {
                 </Button>
               ) : (
                 <Button
-                  onClick={() => triggerFinalSubmit(selectedAnswers, activeQuestions)}
+                  onClick={() => triggerFinalSubmit(selectedAnswers)}
                   className="bg-emerald-600 hover:bg-emerald-500 text-on-brand text-xs font-bold px-6 shadow-lg shadow-emerald-600/20"
                 >
                   Submit Final Assessment

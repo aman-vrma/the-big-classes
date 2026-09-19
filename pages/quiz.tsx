@@ -288,6 +288,7 @@ export function Quiz() {
       `${scoreLine}\n` +
       `Status: ${cand.status.toUpperCase()}\n` +
       `Violations Detected: ${cand.violations} / 3\n` +
+      (cand.overtime ? `Overtime: Yes (+${cand.overtimeMinutes || 0} min past deadline)\n` : "") +
       `Recorded Timestamp: ${new Date(cand.updatedAt).toLocaleString()}\n\n` +
       `Best Wishes,\n` +
       `Faculty Desk - The Big Classes Engine`
