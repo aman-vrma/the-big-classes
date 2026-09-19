@@ -23,17 +23,17 @@ const queryClient = new QueryClient();
 function NotFound() {
   return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] text-center space-y-3">
-      <h1 className="text-4xl font-bold text-white">404</h1>
-      <p className="text-slate-400 text-sm">The page you are looking for does not exist.</p>
+      <h1 className="text-4xl font-bold text-ink">404</h1>
+      <p className="text-ink-muted text-sm">The page you are looking for does not exist.</p>
     </div>
   );
 }
 
 function LoadingScreen() {
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-[#030712] gap-3">
-      <Loader2 className="w-6 h-6 animate-spin text-brand-400" />
-      <p className="text-xs font-semibold text-slate-400 tracking-wide">Restoring your session...</p>
+    <div className="flex flex-col items-center justify-center min-h-screen bg-app gap-3">
+      <Loader2 className="w-6 h-6 animate-spin text-brand-ink" />
+      <p className="text-xs font-semibold text-ink-muted tracking-wide">Restoring your session...</p>
     </div>
   );
 }

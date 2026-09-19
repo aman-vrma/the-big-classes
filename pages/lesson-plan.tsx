@@ -70,7 +70,7 @@ export function LessonPlan() {
       </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-        <Card className="p-6 lg:col-span-1 border-border/50 sticky top-8">
+        <Card className="p-6 lg:col-span-1 border-paper-line/50 sticky top-8">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
               <FormField
@@ -159,7 +159,7 @@ export function LessonPlan() {
 
         <div className="lg:col-span-2">
           {hasGenerated ? (
-            <Card className="p-8 min-h-[500px] border-border/50 bg-white">
+            <Card className="p-8 min-h-[500px] border-paper-line/50 bg-paper">
               {content ? (
                 <div className="animate-in fade-in duration-500">
                   <Markdown content={content} />
@@ -175,7 +175,7 @@ export function LessonPlan() {
               )}
             </Card>
           ) : (
-            <div className="h-full min-h-[500px] border-2 border-dashed border-border/50 rounded-xl flex flex-col items-center justify-center text-muted-foreground bg-muted/20">
+            <div className="h-full min-h-[500px] border-2 border-dashed border-paper-line/50 rounded-xl flex flex-col items-center justify-center text-muted-foreground bg-muted/20">
               <BookOpen className="h-12 w-12 text-muted-foreground/30 mb-4" />
               <p>Fill out the form to generate a lesson plan.</p>
             </div>

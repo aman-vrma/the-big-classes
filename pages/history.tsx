@@ -47,13 +47,13 @@ const TYPE_META: Record<string, { label: string; icon: any; color: string }> = {
 
 function GeneratedHistoryCard({ item, onDelete }: { item: ClassroomHistoryItem; onDelete: (id: string) => void }) {
   const [expanded, setExpanded] = useState(false);
-  const meta = TYPE_META[item.type] || { label: item.type, icon: HistoryIcon, color: "text-slate-600 bg-slate-50 border-slate-200" };
+  const meta = TYPE_META[item.type] || { label: item.type, icon: HistoryIcon, color: "text-paper-ink-soft bg-paper-2 border-paper-line" };
   const Icon = meta.icon;
 
   return (
-    <Card className="border-slate-200 bg-white overflow-hidden">
+    <Card className="border-paper-line bg-paper overflow-hidden">
       <div
-        className="p-4 flex items-center justify-between cursor-pointer hover:bg-slate-50 transition-colors"
+        className="p-4 flex items-center justify-between cursor-pointer hover:bg-paper-2 transition-colors"
         onClick={() => setExpanded((v) => !v)}
       >
         <div className="flex items-center gap-3 min-w-0">
@@ -65,14 +65,14 @@ function GeneratedHistoryCard({ item, onDelete }: { item: ClassroomHistoryItem; 
               <span className={`text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded ${meta.color}`}>
                 {meta.label}
               </span>
-              <span className="text-[10px] text-slate-400 flex items-center gap-1">
+              <span className="text-[10px] text-paper-ink-muted flex items-center gap-1">
                 <Calendar className="w-3 h-3" /> {new Date(item.createdAt).toLocaleString()}
               </span>
             </div>
-            <p className="text-sm font-bold text-slate-900 truncate mt-0.5">
+            <p className="text-sm font-bold text-paper-ink truncate mt-0.5">
               {item.title || item.topic || "Untitled"}
             </p>
-            {item.subject && <p className="text-xs text-slate-500 truncate">{item.subject}</p>}
+            {item.subject && <p className="text-xs text-paper-ink-muted truncate">{item.subject}</p>}
           </div>
         </div>
 
@@ -84,16 +84,16 @@ function GeneratedHistoryCard({ item, onDelete }: { item: ClassroomHistoryItem; 
               e.stopPropagation();
               onDelete(item.id);
             }}
-            className="h-8 w-8 p-0 text-slate-400 hover:text-red-600 hover:bg-red-50"
+            className="h-8 w-8 p-0 text-paper-ink-muted hover:text-red-600 hover:bg-red-50"
           >
             <Trash2 className="w-4 h-4" />
           </Button>
-          <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${expanded ? "rotate-180" : ""}`} />
+          <ChevronDown className={`w-4 h-4 text-paper-ink-muted transition-transform ${expanded ? "rotate-180" : ""}`} />
         </div>
       </div>
 
       {expanded && (
-        <div className="px-4 pb-4 pt-1 border-t border-slate-100">
+        <div className="px-4 pb-4 pt-1 border-t border-paper-line">
           {item.type === "lesson-plan" || item.type === "assignment" ? (
             <div className="max-h-96 overflow-y-auto pr-1">
               <Markdown content={String(item.content || "")} />
@@ -101,23 +101,23 @@ function GeneratedHistoryCard({ item, onDelete }: { item: ClassroomHistoryItem; 
           ) : item.type === "quiz" ? (
             <div className="space-y-2 max-h-96 overflow-y-auto pr-1">
               {(item.content as QuizResult)?.questions?.map((q, i) => (
-                <div key={q.id || i} className="p-3 rounded-lg border border-slate-200 bg-slate-50/50 text-xs space-y-1">
-                  <p className="font-semibold text-slate-900">Q{i + 1}. {q.question}</p>
+                <div key={q.id || i} className="p-3 rounded-lg border border-paper-line bg-paper-2/50 text-xs space-y-1">
+                  <p className="font-semibold text-paper-ink">Q{i + 1}. {q.question}</p>
                   <p className="text-emerald-700 font-medium">
-                    Correct Answer: {q.correctAnswer || <span className="text-slate-400">Not available (hosted by a different teacher account)</span>}
+                    Correct Answer: {q.correctAnswer || <span className="text-paper-ink-muted">Not available (hosted by a different teacher account)</span>}
                   </p>
                 </div>
               ))}
             </div>
           ) : item.type === "grade" ? (
             <div className="space-y-3 text-sm">
-              <p className="font-bold text-slate-900">
+              <p className="font-bold text-paper-ink">
                 Score: {(item.content as GradeResult)?.marksAwarded} / {(item.content as GradeResult)?.maxMarks} ({(item.content as GradeResult)?.grade})
               </p>
-              <p className="text-slate-600">{(item.content as GradeResult)?.feedback}</p>
+              <p className="text-paper-ink-soft">{(item.content as GradeResult)?.feedback}</p>
             </div>
           ) : (
-            <pre className="text-xs text-slate-600 whitespace-pre-wrap">{JSON.stringify(item.content, null, 2)}</pre>
+            <pre className="text-xs text-paper-ink-soft whitespace-pre-wrap">{JSON.stringify(item.content, null, 2)}</pre>
           )}
         </div>
       )}
@@ -182,27 +182,27 @@ export function HistoryPage() {
 
   return (
     <div className="space-y-8">
-      <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 pb-5">
+      <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-paper-line pb-5">
         <div>
           <div className="flex items-center gap-2 mb-1">
             <Button 
               variant="ghost" 
               size="sm" 
               onClick={() => setLocation("/quiz")} 
-              className="h-7 px-2 text-xs text-slate-500 hover:text-slate-800"
+              className="h-7 px-2 text-xs text-paper-ink-muted hover:text-paper-ink"
             >
               <ArrowLeft className="w-3.5 h-3.5 mr-1" /> Back to Quiz
             </Button>
           </div>
-          <h1 className="text-3xl font-serif font-bold text-slate-900">History</h1>
-          <p className="text-slate-600 mt-1">Audit past exams, and everything else AI has generated for you.</p>
+          <h1 className="text-3xl font-serif font-bold text-paper-ink">History</h1>
+          <p className="text-paper-ink-soft mt-1">Audit past exams, and everything else AI has generated for you.</p>
         </div>
 
         {activeTab === "exams" && (
           <Button
             variant="outline"
             onClick={() => exportCandidatesToCSV()}
-            className="border-slate-300 text-slate-700 hover:bg-slate-100 flex items-center gap-1.5 shadow-sm"
+            className="border-paper-line-strong text-paper-ink-soft hover:bg-paper-3 flex items-center gap-1.5 shadow-sm"
           >
             <Download className="w-4 h-4 text-brand-600" />
             Export All History (CSV)
@@ -211,13 +211,13 @@ export function HistoryPage() {
       </header>
 
       {/* Tabs */}
-      <div className="flex items-center gap-2 border-b border-slate-200 -mt-4">
+      <div className="flex items-center gap-2 border-b border-paper-line -mt-4">
         <button
           onClick={() => setActiveTab("exams")}
           className={`px-4 py-2.5 text-sm font-semibold border-b-2 transition-colors ${
             activeTab === "exams"
               ? "border-brand-600 text-brand-700"
-              : "border-transparent text-slate-500 hover:text-slate-800"
+              : "border-transparent text-paper-ink-muted hover:text-paper-ink"
           }`}
         >
           Conducted Exams ({examRooms.length})
@@ -227,7 +227,7 @@ export function HistoryPage() {
           className={`px-4 py-2.5 text-sm font-semibold border-b-2 transition-colors ${
             activeTab === "generated"
               ? "border-brand-600 text-brand-700"
-              : "border-transparent text-slate-500 hover:text-slate-800"
+              : "border-transparent text-paper-ink-muted hover:text-paper-ink"
           }`}
         >
           Generated Content ({generatedHistory.length})
@@ -245,7 +245,7 @@ export function HistoryPage() {
                 className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors ${
                   typeFilter === key
                     ? "bg-brand-600 border-brand-600 text-white"
-                    : "bg-white border-slate-200 text-slate-600 hover:border-slate-300"
+                    : "bg-paper border-paper-line text-paper-ink-soft hover:border-paper-line-strong"
                 }`}
               >
                 {key === "all" ? "All" : TYPE_META[key]?.label || key}
@@ -254,14 +254,14 @@ export function HistoryPage() {
           </div>
 
           {generatedLoading ? (
-            <Card className="p-16 text-center border-slate-200 bg-white">
-              <p className="text-sm text-slate-500">Loading generated content...</p>
+            <Card className="p-16 text-center border-paper-line bg-paper">
+              <p className="text-sm text-paper-ink-muted">Loading generated content...</p>
             </Card>
           ) : filteredGeneratedHistory.length === 0 ? (
-            <Card className="p-16 text-center border-slate-200 bg-white space-y-3">
-              <HistoryIcon className="w-12 h-12 text-slate-300 mx-auto" />
-              <h2 className="text-lg font-bold text-slate-800">Kuch bhi generate nahi hua abhi tak</h2>
-              <p className="text-xs text-slate-500 max-w-sm mx-auto">
+            <Card className="p-16 text-center border-paper-line bg-paper space-y-3">
+              <HistoryIcon className="w-12 h-12 text-paper-ink-muted mx-auto" />
+              <h2 className="text-lg font-bold text-paper-ink">Kuch bhi generate nahi hua abhi tak</h2>
+              <p className="text-xs text-paper-ink-muted max-w-sm mx-auto">
                 Quiz, Lesson Plan, Assignment ya Grade generate karo — wo sab yahan dikhega.
               </p>
             </Card>
@@ -278,14 +278,14 @@ export function HistoryPage() {
           )}
         </div>
       ) : loading ? (
-        <Card className="p-16 text-center border-slate-200 bg-white space-y-3">
-          <p className="text-sm text-slate-500">Loading exam history...</p>
+        <Card className="p-16 text-center border-paper-line bg-paper space-y-3">
+          <p className="text-sm text-paper-ink-muted">Loading exam history...</p>
         </Card>
       ) : examRooms.length === 0 ? (
-        <Card className="p-16 text-center border-slate-200 bg-white space-y-3">
-          <HistoryIcon className="w-12 h-12 text-slate-300 mx-auto" />
-          <h2 className="text-lg font-bold text-slate-800">No Exams Recorded in Archive</h2>
-          <p className="text-xs text-slate-500 max-w-sm mx-auto">
+        <Card className="p-16 text-center border-paper-line bg-paper space-y-3">
+          <HistoryIcon className="w-12 h-12 text-paper-ink-muted mx-auto" />
+          <h2 className="text-lg font-bold text-paper-ink">No Exams Recorded in Archive</h2>
+          <p className="text-xs text-paper-ink-muted max-w-sm mx-auto">
             Jab aap Quiz Arena se exam host karenge aur students PIN enter karke test denge, tab saara data yahan aayega.
           </p>
           <Button onClick={() => setLocation("/quiz")} className="bg-brand-600 text-white text-xs mt-2">
@@ -297,10 +297,10 @@ export function HistoryPage() {
           {/* Left: Exam list cards */}
           <div className="space-y-3 lg:col-span-1">
             <div className="flex items-center justify-between px-1">
-              <h2 className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+              <h2 className="text-xs font-bold text-paper-ink-soft uppercase tracking-wider">
                 Exam Sessions ({examRooms.length})
               </h2>
-              <span className="text-[10px] text-slate-400">Click to inspect</span>
+              <span className="text-[10px] text-paper-ink-muted">Click to inspect</span>
             </div>
 
             {examRooms.map((room) => {
@@ -316,26 +316,26 @@ export function HistoryPage() {
                   className={`p-4 rounded-xl border transition-all cursor-pointer ${
                     isSelected
                       ? "bg-brand-50/80 border-brand-500 shadow-sm ring-1 ring-brand-500"
-                      : "bg-white border-slate-200 hover:border-slate-300"
+                      : "bg-paper border-paper-line hover:border-paper-line-strong"
                   }`}
                 >
                   <div className="flex items-center justify-between">
-                    <span className="font-mono text-xs font-bold text-brand-700 bg-white px-2 py-0.5 rounded border border-brand-200">
+                    <span className="font-mono text-xs font-bold text-brand-700 bg-paper px-2 py-0.5 rounded border border-brand-200">
                       PIN: {room.roomCode}
                     </span>
-                    <span className="text-[10px] text-slate-400 flex items-center gap-1">
+                    <span className="text-[10px] text-paper-ink-muted flex items-center gap-1">
                       <Calendar className="w-3 h-3" /> {new Date(room.createdAt).toLocaleDateString()}
                     </span>
                   </div>
 
-                  <h3 className="font-bold text-sm text-slate-900 mt-2 truncate">{room.topic}</h3>
-                  <p className="text-xs text-slate-500 truncate">{room.subject}</p>
+                  <h3 className="font-bold text-sm text-paper-ink mt-2 truncate">{room.topic}</h3>
+                  <p className="text-xs text-paper-ink-muted truncate">{room.subject}</p>
 
-                  <div className="flex items-center justify-between text-[11px] text-slate-500 mt-3 pt-2 border-t border-slate-100">
+                  <div className="flex items-center justify-between text-[11px] text-paper-ink-muted mt-3 pt-2 border-t border-paper-line">
                     <span className="flex items-center gap-1">
                       <Clock className="w-3 h-3" /> {room.durationMinutes || 10} Mins
                     </span>
-                    <span className="font-semibold text-slate-700 flex items-center gap-0.5">
+                    <span className="font-semibold text-paper-ink-soft flex items-center gap-0.5">
                       <Users className="w-3 h-3 text-brand-600" /> {roomCandidates.length} Students
                       <ChevronRight className="w-3 h-3 ml-1" />
                     </span>
@@ -348,16 +348,16 @@ export function HistoryPage() {
           {/* Right: Selected Exam Details & Students Table */}
           {selectedRoom && (
             <div className="lg:col-span-2 space-y-6">
-              <Card className="p-6 border-slate-200 bg-white shadow-sm space-y-5">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-200 pb-4 gap-3">
+              <Card className="p-6 border-paper-line bg-paper shadow-sm space-y-5">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-paper-line pb-4 gap-3">
                   <div>
                     <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded ${
-                      selectedRoom.status === "closed" ? "bg-slate-100 text-slate-600" : "bg-emerald-100 text-emerald-800"
+                      selectedRoom.status === "closed" ? "bg-paper-3 text-paper-ink-soft" : "bg-emerald-100 text-emerald-800"
                     }`}>
                       {selectedRoom.status === "closed" ? "Closed Archive" : "Active Room"}
                     </span>
-                    <h2 className="text-2xl font-serif font-bold text-slate-900 mt-1">{selectedRoom.topic}</h2>
-                    <p className="text-xs text-slate-500">Subject: {selectedRoom.subject} | Room Code: <span className="font-mono font-bold text-slate-800">{selectedRoom.roomCode}</span></p>
+                    <h2 className="text-2xl font-serif font-bold text-paper-ink mt-1">{selectedRoom.topic}</h2>
+                    <p className="text-xs text-paper-ink-muted">Subject: {selectedRoom.subject} | Room Code: <span className="font-mono font-bold text-paper-ink">{selectedRoom.roomCode}</span></p>
                   </div>
 
                   <div className="flex items-center gap-2">
@@ -365,7 +365,7 @@ export function HistoryPage() {
                       size="sm"
                       variant="outline"
                       onClick={() => exportCandidatesToCSV(selectedRoom.roomCode)}
-                      className="text-xs border-slate-300"
+                      className="text-xs border-paper-line-strong"
                     >
                       <Download className="w-3.5 h-3.5 mr-1 text-brand-600" /> Export CSV
                     </Button>
@@ -382,19 +382,19 @@ export function HistoryPage() {
                 {/* Candidates Table */}
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                    <h3 className="text-sm font-bold text-paper-ink flex items-center gap-2">
                       <Users className="w-4 h-4 text-brand-600" /> Candidate Evaluation Sheet ({candidatesForRoom.length})
                     </h3>
                   </div>
 
                   {candidatesForRoom.length === 0 ? (
-                    <div className="p-8 text-center border border-dashed border-slate-200 rounded-xl text-slate-400 text-xs">
+                    <div className="p-8 text-center border border-dashed border-paper-line rounded-xl text-paper-ink-muted text-xs">
                       No candidate submissions recorded for PIN {selectedRoom.roomCode}.
                     </div>
                   ) : (
-                    <div className="overflow-x-auto border border-slate-200 rounded-xl">
+                    <div className="overflow-x-auto border border-paper-line rounded-xl">
                       <table className="w-full text-left text-xs">
-                        <thead className="bg-slate-50 text-slate-700 font-semibold border-b border-slate-200">
+                        <thead className="bg-paper-2 text-paper-ink-soft font-semibold border-b border-paper-line">
                           <tr>
                             <th className="p-3">Student Name</th>
                             <th className="p-3">Proctor Status</th>
@@ -403,12 +403,12 @@ export function HistoryPage() {
                             <th className="p-3">Time</th>
                           </tr>
                         </thead>
-                        <tbody className="divide-y divide-slate-100 font-medium text-slate-800">
+                        <tbody className="divide-y divide-paper-line font-medium text-paper-ink">
                           {candidatesForRoom.map((cand, idx) => (
-                            <tr key={idx} className="hover:bg-slate-50 transition-colors">
+                            <tr key={idx} className="hover:bg-paper-2 transition-colors">
                               <td className="p-3">
-                                <p className="font-bold text-slate-900">{cand.studentName}</p>
-                                <p className="text-[11px] text-slate-400">{cand.studentEmail || "No Email"}</p>
+                                <p className="font-bold text-paper-ink">{cand.studentName}</p>
+                                <p className="text-[11px] text-paper-ink-muted">{cand.studentEmail || "No Email"}</p>
                               </td>
                               <td className="p-3">
                                 {cand.status === "in-progress" && (
@@ -428,7 +428,7 @@ export function HistoryPage() {
                                 )}
                               </td>
                               <td className="p-3 font-mono">
-                                <span className={cand.violations >= 3 ? "text-red-600 font-bold" : "text-slate-600"}>
+                                <span className={cand.violations >= 3 ? "text-red-600 font-bold" : "text-paper-ink-soft"}>
                                   {cand.violations || 0} / 3
                                 </span>
                               </td>
@@ -441,7 +441,7 @@ export function HistoryPage() {
                                   </span>
                                 )}
                               </td>
-                              <td className="p-3 text-[11px] text-slate-400">
+                              <td className="p-3 text-[11px] text-paper-ink-muted">
                                 {new Date(cand.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                               </td>
                             </tr>
@@ -453,12 +453,12 @@ export function HistoryPage() {
                 </div>
 
                 {/* Questions in Paper */}
-                <div className="space-y-3 pt-3 border-t border-slate-100">
-                  <h3 className="text-sm font-bold text-slate-900">Questions in Paper ({selectedRoom.questions?.length || 0})</h3>
+                <div className="space-y-3 pt-3 border-t border-paper-line">
+                  <h3 className="text-sm font-bold text-paper-ink">Questions in Paper ({selectedRoom.questions?.length || 0})</h3>
                   <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
                     {selectedRoom.questions?.map((q, i) => (
-                      <div key={q.id || i} className="p-3 rounded-lg border border-slate-200 bg-slate-50/50 text-xs space-y-1">
-                        <p className="font-semibold text-slate-900">Q{i + 1}. {q.question}</p>
+                      <div key={q.id || i} className="p-3 rounded-lg border border-paper-line bg-paper-2/50 text-xs space-y-1">
+                        <p className="font-semibold text-paper-ink">Q{i + 1}. {q.question}</p>
                         <p className="text-emerald-700 font-medium">Correct Answer: {q.correctAnswer}</p>
                       </div>
                     ))}

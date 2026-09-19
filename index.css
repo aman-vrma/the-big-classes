@@ -4,8 +4,11 @@
 
 @layer base {
   :root {
-    /* Default accent — Tailwind's blue-*. lib/theme.tsx overwrites these at
-       runtime when a user picks a different colour. */
+    /* Defaults = the "Studio" look: dark shell + light paper workspace.
+       lib/theme.tsx overwrites every one of these when the user picks a
+       different accent, layout mode or background. */
+
+    /* accent — Tailwind blue-* */
     --brand-50: 239 246 255;
     --brand-100: 219 234 254;
     --brand-200: 191 219 254;
@@ -17,6 +20,44 @@
     --brand-800: 30 64 175;
     --brand-900: 30 58 138;
     --brand-950: 23 37 84;
+    --brand-ink: 96 165 250;
+
+    /* shell (dark) */
+    --app: 3 7 18;
+    --sidebar: 10 16 31;
+    --sidebar-deep: 6 11 23;
+    --surface: 15 23 42;
+    --surface-2: 2 6 23;
+    --surface-3: 30 41 59;
+    --surface-4: 51 65 85;
+    --line: 30 41 59;
+    --line-strong: 51 65 85;
+    --ink: 248 250 252;
+    --ink-soft: 203 213 225;
+    --ink-muted: 148 163 184;
+    --on-brand: 255 255 255;
+
+    /* paper (light workspace) */
+    --paper: 255 255 255;
+    --paper-2: 248 250 252;
+    --paper-3: 241 245 249;
+    --paper-4: 226 232 240;
+    --paper-line: 226 232 240;
+    --paper-line-strong: 203 213 225;
+    --paper-ink: 15 23 42;
+    --paper-ink-soft: 71 85 105;
+    --paper-ink-muted: 100 116 139;
+
+    /* status (dark-tuned) */
+    --danger-soft: 69 10 10;
+    --danger-line: 127 29 29;
+    --danger-ink: 252 165 165;
+    --success-soft: 2 44 34;
+    --success-line: 6 95 70;
+    --success-ink: 110 231 183;
+    --warn-soft: 69 26 3;
+    --warn-line: 146 64 14;
+    --warn-ink: 251 191 36;
 
     --background: 210 40% 98%;
     --foreground: 222 47% 11%;
@@ -40,20 +81,18 @@
     --radius: 0.75rem;
   }
 
-  h1, h2, h3, h4, h5, h6, p, label, input, textarea {
-    color: #0f172a;
-  }
-
   .text-muted-foreground, .text-slate-500 {
     color: #475569;
   }
 }
 
+/* Matches the previous global default (#e2e8f0) but follows the theme; the shell
+   tokens are opted into explicitly with `border-line`. */
 * {
-  border-color: #e2e8f0;
+  border-color: rgb(var(--paper-line));
 }
 
 body {
-  background-color: #f8fafc;
-  color: #0f172a;
+  background-color: rgb(var(--app));
+  color: rgb(var(--ink));
 }

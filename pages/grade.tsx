@@ -92,7 +92,7 @@ export function Grade() {
       </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-        <Card className="p-6 border-border/50">
+        <Card className="p-6 border-paper-line/50">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
               <FormField
@@ -135,10 +135,10 @@ export function Grade() {
                 />
 
                 {capturedImage ? (
-                  <div className="relative mt-2 p-2 border rounded-lg bg-slate-50 flex items-center justify-between">
+                  <div className="relative mt-2 p-2 border rounded-lg bg-paper-2 flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <img src={capturedImage} alt="Sheet" className="w-14 h-14 object-cover rounded" />
-                      <span className="text-xs text-slate-600 font-medium">Answer Sheet Photo Attached</span>
+                      <span className="text-xs text-paper-ink-soft font-medium">Answer Sheet Photo Attached</span>
                     </div>
                     <Button type="button" variant="ghost" size="sm" onClick={() => setCapturedImage(null)}>
                       <X className="w-4 h-4 text-red-500" />
@@ -232,7 +232,7 @@ export function Grade() {
 
         <div>
           {gradeAnswer.isPending && (
-            <Card className="h-full min-h-[500px] flex flex-col items-center justify-center text-muted-foreground border-border/50">
+            <Card className="h-full min-h-[500px] flex flex-col items-center justify-center text-muted-foreground border-paper-line/50">
               <Loader2 className="h-8 w-8 animate-spin text-primary/50 mb-4" />
               <p>Analyzing handwriting & conceptual correctness...</p>
             </Card>
@@ -240,7 +240,7 @@ export function Grade() {
 
           {!gradeAnswer.isPending && result && (
             <div className="space-y-6 animate-in fade-in duration-300">
-              <Card className="p-8 border-border/50 flex flex-col items-center justify-center">
+              <Card className="p-8 border-paper-line/50 flex flex-col items-center justify-center">
                 <div className={`w-32 h-32 rounded-full border-4 flex flex-col items-center justify-center mb-4 ${getScoreColor(result.percentage)}`}>
                   <span className="text-4xl font-serif font-bold">{result.marksAwarded}</span>
                   <span className="text-sm font-medium opacity-70">/ {result.maxMarks}</span>
@@ -250,7 +250,7 @@ export function Grade() {
               </Card>
 
               <div className="grid gap-6">
-                <Card className="p-6 border-emerald-100 bg-emerald-50/50">
+                <Card className="p-6 border-emerald-100 bg-emerald-50">
                   <h4 className="flex items-center text-emerald-800 font-medium mb-3">
                     <CheckCircle className="w-5 h-5 mr-2" />
                     Strengths
@@ -265,7 +265,7 @@ export function Grade() {
                   </ul>
                 </Card>
 
-                <Card className="p-6 border-amber-100 bg-amber-50/50">
+                <Card className="p-6 border-amber-100 bg-amber-50">
                   <h4 className="flex items-center text-amber-800 font-medium mb-3">
                     <AlertCircle className="w-5 h-5 mr-2" />
                     Areas for Improvement
@@ -284,7 +284,7 @@ export function Grade() {
           )}
 
           {!gradeAnswer.isPending && !result && (
-            <div className="h-full min-h-[500px] border-2 border-dashed border-border/50 rounded-xl flex flex-col items-center justify-center text-muted-foreground bg-muted/20">
+            <div className="h-full min-h-[500px] border-2 border-dashed border-paper-line/50 rounded-xl flex flex-col items-center justify-center text-muted-foreground bg-muted/20">
               <GraduationCap className="h-12 w-12 text-muted-foreground/30 mb-4" />
               <p>Submit text or capture sheet photo to get detailed grading.</p>
             </div>

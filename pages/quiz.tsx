@@ -302,10 +302,10 @@ export function Quiz() {
   return (
     <div className="space-y-8">
       {/* Top Header */}
-      <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 pb-5">
+      <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-paper-line pb-5">
         <div>
-          <h1 className="text-3xl font-serif font-bold text-slate-900">Quiz & Proctoring Arena</h1>
-          <p className="text-slate-600 mt-1">Configure timed proctored exams, host live rooms, and monitor candidates in real-time.</p>
+          <h1 className="text-3xl font-serif font-bold text-paper-ink">Quiz & Proctoring Arena</h1>
+          <p className="text-paper-ink-soft mt-1">Configure timed proctored exams, host live rooms, and monitor candidates in real-time.</p>
         </div>
 
         <div className="shrink-0 flex items-center gap-2">
@@ -313,7 +313,7 @@ export function Quiz() {
             variant="outline"
             size="sm"
             onClick={() => setLocation("/history")}
-            className="border-slate-300 text-slate-700 hover:bg-slate-100 flex items-center gap-1.5"
+            className="border-paper-line-strong text-paper-ink-soft hover:bg-paper-3 flex items-center gap-1.5"
           >
             <HistoryIcon className="w-4 h-4 text-brand-600" />
             Conducted History
@@ -335,12 +335,12 @@ export function Quiz() {
             <div className="flex items-center gap-2">
               <div className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl border shadow-sm ${
                 isRoomClosed 
-                  ? "bg-slate-100 border-slate-300 text-slate-600" 
+                  ? "bg-paper-3 border-paper-line-strong text-paper-ink-soft" 
                   : "bg-emerald-50 border-emerald-300 text-emerald-900"
               }`}>
                 <div className="text-left">
                   <span className={`text-[10px] font-bold uppercase tracking-wider block ${
-                    isRoomClosed ? "text-slate-500" : "text-emerald-700"
+                    isRoomClosed ? "text-paper-ink-muted" : "text-emerald-700"
                   }`}>
                     {isRoomClosed ? "Room Closed" : "Live Room PIN"}
                   </span>
@@ -371,7 +371,7 @@ export function Quiz() {
               className={`font-semibold shadow-md transition-all flex items-center gap-2 ${
                 result
                   ? "bg-brand-600 hover:bg-brand-700 text-white animate-pulse"
-                  : "bg-slate-200 text-slate-400 cursor-not-allowed border border-slate-300"
+                  : "bg-paper-4 text-paper-ink-muted cursor-not-allowed border border-paper-line-strong"
               }`}
             >
               <Radio className="w-4 h-4" />
@@ -384,11 +384,11 @@ export function Quiz() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
         {/* LEFT COLUMN: Form + LIVE PROCTORING MONITOR */}
         <div className="lg:col-span-1 space-y-6">
-          <Card className="p-6 border-slate-200 bg-white shadow-sm space-y-4">
+          <Card className="p-6 border-paper-line bg-paper shadow-sm space-y-4">
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                 <div className="p-3 border border-dashed border-brand-200 rounded-lg bg-brand-50/50 space-y-2">
-                  <span className="text-xs font-semibold text-slate-700 block">Upload Document (Optional)</span>
+                  <span className="text-xs font-semibold text-paper-ink-soft block">Upload Document (Optional)</span>
                   <input
                     type="file"
                     accept=".pdf,.txt,.md"
@@ -398,10 +398,10 @@ export function Quiz() {
                   />
                   
                   {uploadedFileName ? (
-                    <div className="flex items-center justify-between bg-white p-2.5 rounded border text-xs shadow-sm">
+                    <div className="flex items-center justify-between bg-paper p-2.5 rounded border text-xs shadow-sm">
                       <div className="flex items-center gap-2 truncate">
                         <FileText className="w-4 h-4 text-brand-600 shrink-0" />
-                        <span className="truncate font-medium text-slate-800">{uploadedFileName}</span>
+                        <span className="truncate font-medium text-paper-ink">{uploadedFileName}</span>
                       </div>
                       <button 
                         type="button" 
@@ -419,7 +419,7 @@ export function Quiz() {
                       type="button"
                       variant="outline"
                       size="sm"
-                      className="w-full text-xs h-9 flex items-center gap-2 bg-white"
+                      className="w-full text-xs h-9 flex items-center gap-2 bg-paper"
                       onClick={() => fileInputRef.current?.click()}
                       disabled={isReadingPdf}
                     >
@@ -539,11 +539,11 @@ export function Quiz() {
           </Card>
 
           {/* LIVE PROCTORING MONITOR */}
-          <Card className="p-5 border-slate-200 bg-white shadow-sm space-y-3">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+          <Card className="p-5 border-paper-line bg-paper shadow-sm space-y-3">
+            <div className="flex items-center justify-between border-b border-paper-line pb-2">
               <div className="flex items-center gap-2">
                 <Users className="w-4 h-4 text-brand-600" />
-                <span className="font-bold text-sm text-slate-900">Active Test Candidates</span>
+                <span className="font-bold text-sm text-paper-ink">Active Test Candidates</span>
               </div>
               {hostedRoomCode && (
                 <span className="text-[10px] font-mono bg-brand-50 text-brand-700 border border-brand-200 px-2 py-0.5 rounded font-bold">
@@ -553,21 +553,21 @@ export function Quiz() {
             </div>
 
             {!hostedRoomCode ? (
-              <div className="py-6 text-center text-slate-400 text-xs">
+              <div className="py-6 text-center text-paper-ink-muted text-xs">
                 Host an exam to view candidates in real-time.
               </div>
             ) : candidates.length === 0 ? (
-              <div className="py-6 text-center text-slate-400 text-xs space-y-1">
-                <p className="font-medium text-slate-600">No candidates have joined yet.</p>
+              <div className="py-6 text-center text-paper-ink-muted text-xs space-y-1">
+                <p className="font-medium text-paper-ink-soft">No candidates have joined yet.</p>
                 <p className="text-[11px]">Share PIN {hostedRoomCode} with students.</p>
               </div>
             ) : (
               <div className="space-y-2 max-h-80 overflow-y-auto pr-1">
                 {candidates.map((cand, i) => (
-                  <div key={i} className="p-2.5 rounded-lg border border-slate-200 bg-slate-50 text-xs flex items-center justify-between">
+                  <div key={i} className="p-2.5 rounded-lg border border-paper-line bg-paper-2 text-xs flex items-center justify-between">
                     <div className="space-y-0.5">
-                      <p className="font-bold text-slate-900">{cand.studentName}</p>
-                      <p className="text-[10px] text-slate-400">{cand.studentEmail || "No Email"}</p>
+                      <p className="font-bold text-paper-ink">{cand.studentName}</p>
+                      <p className="text-[10px] text-paper-ink-muted">{cand.studentEmail || "No Email"}</p>
                     </div>
 
                     <div>
@@ -597,7 +597,7 @@ export function Quiz() {
         {/* RIGHT COLUMN: RANKING LEADERBOARD + EMAIL DISPATCH & QUESTIONS */}
         <div className="lg:col-span-2 space-y-6">
           {generateQuiz.isPending && (
-            <Card className="p-12 flex flex-col items-center justify-center text-slate-500 border-slate-200 bg-white">
+            <Card className="p-12 flex flex-col items-center justify-center text-paper-ink-muted border-paper-line bg-paper">
               <Loader2 className="h-8 w-8 animate-spin text-brand-600 mb-4" />
               <p>Formulating questions and setting duration bounds...</p>
             </Card>
@@ -605,13 +605,13 @@ export function Quiz() {
 
           {/* RANKING & EMAIL SEND SECTION */}
           {hostedRoomCode && candidates.length > 0 && (
-            <Card className="p-6 border-slate-200 bg-white shadow-sm space-y-4">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
+            <Card className="p-6 border-paper-line bg-paper shadow-sm space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-paper-line pb-3">
                 <div className="flex items-center gap-2">
                   <Trophy className="w-5 h-5 text-amber-500" />
                   <div>
-                    <h3 className="font-bold text-base text-slate-900">Student Ranking & Result Dispatch</h3>
-                    <p className="text-xs text-slate-500">Official scorecard generation with single-click email delivery.</p>
+                    <h3 className="font-bold text-base text-paper-ink">Student Ranking & Result Dispatch</h3>
+                    <p className="text-xs text-paper-ink-muted">Official scorecard generation with single-click email delivery.</p>
                   </div>
                 </div>
 
@@ -619,16 +619,16 @@ export function Quiz() {
                   size="sm"
                   variant="outline"
                   onClick={() => exportCandidatesToCSV(hostedRoomCode)}
-                  className="text-xs h-8 flex items-center gap-1.5 border-slate-300"
+                  className="text-xs h-8 flex items-center gap-1.5 border-paper-line-strong"
                 >
                   <Download className="w-3.5 h-3.5 text-brand-600" />
                   Export CSV Ledger
                 </Button>
               </div>
 
-              <div className="overflow-x-auto border border-slate-200 rounded-xl">
+              <div className="overflow-x-auto border border-paper-line rounded-xl">
                 <table className="w-full text-left text-xs">
-                  <thead className="bg-slate-50 text-slate-700 font-semibold border-b border-slate-200">
+                  <thead className="bg-paper-2 text-paper-ink-soft font-semibold border-b border-paper-line">
                     <tr>
                       <th className="p-3">Rank</th>
                       <th className="p-3">Candidate</th>
@@ -637,15 +637,15 @@ export function Quiz() {
                       <th className="p-3 text-right">Result Delivery</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100 font-medium text-slate-800">
+                  <tbody className="divide-y divide-paper-line font-medium text-paper-ink">
                     {rankedCandidates.map((c, rankIdx) => (
-                      <tr key={rankIdx} className="hover:bg-slate-50 transition-colors">
-                        <td className="p-3 font-mono font-bold text-slate-500">
+                      <tr key={rankIdx} className="hover:bg-paper-2 transition-colors">
+                        <td className="p-3 font-mono font-bold text-paper-ink-muted">
                           #{rankIdx + 1}
                         </td>
                         <td className="p-3">
-                          <p className="font-bold text-slate-900">{c.studentName}</p>
-                          <p className="text-[11px] text-slate-400">{c.studentEmail || "No email"}</p>
+                          <p className="font-bold text-paper-ink">{c.studentName}</p>
+                          <p className="text-[11px] text-paper-ink-muted">{c.studentEmail || "No email"}</p>
                         </td>
                         <td className="p-3">
                           {c.status === "in-progress" && (
@@ -666,7 +666,7 @@ export function Quiz() {
                         </td>
                         <td className="p-3">
                           {c.status === "in-progress" ? (
-                            <span className="text-slate-400 italic">Writing...</span>
+                            <span className="text-paper-ink-muted italic">Writing...</span>
                           ) : c.status === "disqualified" ? (
                             <span className="text-red-600 font-semibold">Expelled (Auto Submit)</span>
                           ) : (
@@ -697,24 +697,24 @@ export function Quiz() {
           {/* QUESTIONS PREVIEW */}
           {!generateQuiz.isPending && result && (
             <div className="space-y-6 animate-in fade-in duration-300">
-              <div className="flex items-center justify-between border-b border-slate-200 pb-2">
+              <div className="flex items-center justify-between border-b border-paper-line pb-2">
                 <div>
-                  <h2 className="text-2xl font-serif font-bold text-slate-900">{result.topic}</h2>
-                  <span className="text-xs text-slate-500">Session saved. Survives page refreshes.</span>
+                  <h2 className="text-2xl font-serif font-bold text-paper-ink">{result.topic}</h2>
+                  <span className="text-xs text-paper-ink-muted">Session saved. Survives page refreshes.</span>
                 </div>
-                <span className="text-xs text-slate-600 font-medium bg-slate-100 px-3 py-1 rounded-full border border-slate-200">
+                <span className="text-xs text-paper-ink-soft font-medium bg-paper-3 px-3 py-1 rounded-full border border-paper-line">
                   Total Questions: {result.questions.length}
                 </span>
               </div>
               
               {result.questions.map((q, index) => (
-                <Card key={q.id} className="p-6 border-slate-200 bg-white">
+                <Card key={q.id} className="p-6 border-paper-line bg-paper">
                   <div className="flex gap-4">
-                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center font-bold text-slate-700">
+                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-paper-3 flex items-center justify-center font-bold text-paper-ink-soft">
                       {index + 1}
                     </div>
                     <div className="flex-1 space-y-3">
-                      <p className="text-base font-semibold text-slate-900">{q.question}</p>
+                      <p className="text-base font-semibold text-paper-ink">{q.question}</p>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                         {q.options.map((opt, i) => (
                           <div
@@ -722,7 +722,7 @@ export function Quiz() {
                             className={`p-2.5 rounded-lg border text-xs flex items-center ${
                               opt === q.correctAnswer
                                 ? "bg-emerald-50 border-emerald-300 text-emerald-900 font-semibold"
-                                : "bg-white border-slate-200 text-slate-800"
+                                : "bg-paper border-paper-line text-paper-ink"
                             }`}
                           >
                             <span className="font-semibold mr-2">{String.fromCharCode(65 + i)}.</span>
@@ -738,9 +738,9 @@ export function Quiz() {
           )}
 
           {!generateQuiz.isPending && !result && (
-            <div className="h-full min-h-[380px] border-2 border-dashed border-slate-200 rounded-xl flex flex-col items-center justify-center text-slate-400 bg-slate-50/50">
-              <CheckSquare className="h-10 w-10 text-slate-300 mb-3" />
-              <p className="text-sm font-medium text-slate-600">Draft a quiz or upload a document to begin.</p>
+            <div className="h-full min-h-[380px] border-2 border-dashed border-paper-line rounded-xl flex flex-col items-center justify-center text-paper-ink-muted bg-paper-2/50">
+              <CheckSquare className="h-10 w-10 text-paper-ink-muted mb-3" />
+              <p className="text-sm font-medium text-paper-ink-soft">Draft a quiz or upload a document to begin.</p>
             </div>
           )}
         </div>

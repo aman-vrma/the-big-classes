@@ -12,9 +12,9 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Accent colour of the app. The variables are written at runtime by
-        // lib/theme.tsx, so `brand-*` follows whichever theme the user picked
-        // (defaults to Tailwind's blue in index.css).
+        // ---- accent ------------------------------------------------------
+        // Written at runtime by lib/theme.tsx, so `brand-*` follows the accent
+        // the user picked (defaults to Tailwind's blue in index.css).
         brand: {
           50: "rgb(var(--brand-50) / <alpha-value>)",
           100: "rgb(var(--brand-100) / <alpha-value>)",
@@ -28,6 +28,52 @@ export default {
           900: "rgb(var(--brand-900) / <alpha-value>)",
           950: "rgb(var(--brand-950) / <alpha-value>)",
         },
+
+        // Accent-coloured text: a light shade on dark surfaces, a deep one on
+        // light surfaces. Kept separate from `brand-*` so it can vary by mode.
+        "brand-ink": "rgb(var(--brand-ink) / <alpha-value>)",
+
+        // ---- shell -------------------------------------------------------
+        // The app frame: page background, sidebar and the control-room surfaces
+        // used by the layout, student portal and profile.
+        app: "rgb(var(--app) / <alpha-value>)",
+        sidebar: "rgb(var(--sidebar) / <alpha-value>)",
+        "sidebar-deep": "rgb(var(--sidebar-deep) / <alpha-value>)",
+        surface: "rgb(var(--surface) / <alpha-value>)",
+        "surface-2": "rgb(var(--surface-2) / <alpha-value>)",
+        "surface-3": "rgb(var(--surface-3) / <alpha-value>)",
+        "surface-4": "rgb(var(--surface-4) / <alpha-value>)",
+        line: "rgb(var(--line) / <alpha-value>)",
+        "line-strong": "rgb(var(--line-strong) / <alpha-value>)",
+        ink: "rgb(var(--ink) / <alpha-value>)",
+        "ink-soft": "rgb(var(--ink-soft) / <alpha-value>)",
+        "ink-muted": "rgb(var(--ink-muted) / <alpha-value>)",
+        "on-brand": "rgb(var(--on-brand) / <alpha-value>)",
+
+        // ---- paper -------------------------------------------------------
+        // The workspace pages (quiz, history, grading, lesson plans) have their
+        // own ramp, so they can stay light while the shell around them is dark.
+        paper: "rgb(var(--paper) / <alpha-value>)",
+        "paper-2": "rgb(var(--paper-2) / <alpha-value>)",
+        "paper-3": "rgb(var(--paper-3) / <alpha-value>)",
+        "paper-4": "rgb(var(--paper-4) / <alpha-value>)",
+        "paper-line": "rgb(var(--paper-line) / <alpha-value>)",
+        "paper-line-strong": "rgb(var(--paper-line-strong) / <alpha-value>)",
+        "paper-ink": "rgb(var(--paper-ink) / <alpha-value>)",
+        "paper-ink-soft": "rgb(var(--paper-ink-soft) / <alpha-value>)",
+        "paper-ink-muted": "rgb(var(--paper-ink-muted) / <alpha-value>)",
+
+        // ---- status ------------------------------------------------------
+        "danger-soft": "rgb(var(--danger-soft) / <alpha-value>)",
+        "danger-line": "rgb(var(--danger-line) / <alpha-value>)",
+        "danger-ink": "rgb(var(--danger-ink) / <alpha-value>)",
+        "success-soft": "rgb(var(--success-soft) / <alpha-value>)",
+        "success-line": "rgb(var(--success-line) / <alpha-value>)",
+        "success-ink": "rgb(var(--success-ink) / <alpha-value>)",
+        "warn-soft": "rgb(var(--warn-soft) / <alpha-value>)",
+        "warn-line": "rgb(var(--warn-line) / <alpha-value>)",
+        "warn-ink": "rgb(var(--warn-ink) / <alpha-value>)",
+
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         card: {
@@ -47,15 +93,8 @@ export default {
           foreground: "hsl(var(--muted-foreground))",
         },
         border: "hsl(var(--border))",
-        sidebar: {
-          DEFAULT: "hsl(var(--sidebar))",
-          foreground: "hsl(var(--sidebar-foreground))",
-          border: "hsl(var(--sidebar-border))",
-          accent: "hsl(var(--sidebar-accent))",
-          "accent-foreground": "hsl(var(--sidebar-accent-foreground))",
-        },
       },
     },
   },
   plugins: [],
-}
+};

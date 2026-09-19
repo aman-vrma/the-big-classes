@@ -61,7 +61,7 @@ export const FormLabel = React.forwardRef<
   return (
     <label
       ref={ref}
-      className={cn("text-sm font-medium leading-none text-slate-700", className)}
+      className={cn("text-sm font-medium leading-none text-paper-ink-soft", className)}
       {...props}
     />
   );
@@ -83,7 +83,7 @@ export const FormDescription = React.forwardRef<
   return (
     <p
       ref={ref}
-      className={cn("text-xs text-slate-500", className)}
+      className={cn("text-xs text-paper-ink-muted", className)}
       {...props}
     />
   );
