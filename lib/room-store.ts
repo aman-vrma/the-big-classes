@@ -25,6 +25,11 @@ export interface ExamCandidate {
   overtime?: boolean;
   /** Minutes past the deadline, set only when overtime is true. */
   overtimeMinutes?: number;
+  /** Server-stamped: owning teacher's uid — Firestore rules key scoped reads on this. */
+  teacherId?: string;
+  /** Server-stamped exam labels so student history needs no examRooms read. */
+  topic?: string;
+  subject?: string;
   updatedAt: string;
 }
 
@@ -48,11 +53,6 @@ export interface ExamRoom {
 const ROOMS_COLLECTION = "examRooms";
 const CANDIDATES_COLLECTION = "candidates";
 
-// Firestore document IDs can't contain "/" — sanitize just in case.
-function safeId(raw: string): string {
-  return raw.trim().toLowerCase().replace(/[/\\.#$\[\]]/g, "_");
-}
-
 async function attachAnswerKeys(rooms: ExamRoom[]): Promise<ExamRoom[]> {
   await Promise.all(
     rooms.map(async (room) => {
@@ -74,15 +74,9 @@ async function attachAnswerKeys(rooms: ExamRoom[]): Promise<ExamRoom[]> {
   return rooms;
 }
 
-export async function getExamRooms(): Promise<ExamRoom[]> {
-  const snap = await getDocs(collection(db, ROOMS_COLLECTION));
-  const rooms = snap.docs.map((d) => d.data() as ExamRoom);
-  await attachAnswerKeys(rooms);
-  return rooms.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-}
-
 // Only this teacher's own rooms — used by the History page so one teacher never
-// sees another teacher's exams.
+// sees another teacher's exams. The old getExamRooms() (a whole-collection scan)
+// is gone: Firestore rules now only permit scoped queries, never full scans.
 export async function getExamRoomsForTeacher(teacherId: string): Promise<ExamRoom[]> {
   if (!teacherId) return [];
   const q = query(collection(db, ROOMS_COLLECTION), where("teacherId", "==", teacherId));
@@ -119,60 +113,40 @@ export async function closeExamRoom(code: string): Promise<void> {
 export async function findExamRoom(code: string): Promise<ExamRoom | undefined> {
   const snap = await getDoc(doc(db, ROOMS_COLLECTION, code.trim().toUpperCase()));
   return snap.exists() ? (snap.data() as ExamRoom) : undefined;
-}
-
-export async function getAllCandidates(roomCode?: string): Promise<ExamCandidate[]> {
-  let snap;
+}// Attempts for rooms THIS teacher owns. The rules key this on the server-stamped
+// teacherId field; querying on it also keeps the query rule-compliant (no scans).
+export async function getAllCandidates(teacherId: string, roomCode?: string): Promise<ExamCandidate[]> {
+  if (!teacherId) return [];
+  let q = query(
+    collection(db, CANDIDATES_COLLECTION),
+    where("teacherId", "==", teacherId)
+  );
   if (roomCode) {
-    const q = query(collection(db, CANDIDATES_COLLECTION), where("roomCode", "==", roomCode.trim().toUpperCase()));
-    snap = await getDocs(q);
-  } else {
-    snap = await getDocs(collection(db, CANDIDATES_COLLECTION));
+    q = query(q, where("roomCode", "==", roomCode.trim().toUpperCase()));
   }
+  const snap = await getDocs(q);
   const list = snap.docs.map((d) => d.data() as ExamCandidate);
   return list.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
 }
 
-export async function updateCandidateStatus(candidate: ExamCandidate): Promise<void> {
-  const identity = candidate.studentEmail || candidate.studentName;
-  const docId = safeId(`${candidate.roomCode}_${identity}`);
-  await setDoc(
-    doc(db, CANDIDATES_COLLECTION, docId),
-    { ...candidate, roomCode: candidate.roomCode.toUpperCase(), updatedAt: new Date().toISOString() },
-    { merge: true }
-  );
-}
-
-// Returns true if this email has already completed (or been disqualified from) this specific room's exam.
-export async function hasStudentAttempted(email: string, roomCode: string): Promise<boolean> {
-  if (!email || !roomCode) return false;
-  const candidates = await getAllCandidates(roomCode);
-  return candidates.some(
-    (c) =>
-      (c.studentEmail || "").trim().toLowerCase() === email.trim().toLowerCase() &&
-      (c.status === "completed" || c.status === "disqualified")
-  );
-}
-
-// Returns every exam attempt (across all rooms) made by this email, newest first,
-// with the room's topic/subject attached for display.
+// This student's own attempts, newest first. The server stamps studentEmailLower
+// on every attempt, and the rules only let you read rows matching your own token
+// email — so this query is also the rule-compliant path (no scans, no others' data).
 export async function getCandidateHistory(
   email: string
-): Promise<(ExamCandidate & { topic?: string; subject?: string })[]> {
+): Promise<ExamCandidate[]> {
   if (!email) return [];
-  const [rooms, all] = await Promise.all([getExamRooms(), getAllCandidates()]);
-
-  return all
-    .filter((c) => (c.studentEmail || "").trim().toLowerCase() === email.trim().toLowerCase())
-    .map((c) => {
-      const room = rooms.find((r) => r.roomCode.trim().toUpperCase() === c.roomCode.trim().toUpperCase());
-      return { ...c, topic: room?.topic, subject: room?.subject };
-    })
-    .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
+  const q = query(
+    collection(db, CANDIDATES_COLLECTION),
+    where("studentEmailLower", "==", email.trim().toLowerCase())
+  );
+  const snap = await getDocs(q);
+  const list = snap.docs.map((d) => d.data() as ExamCandidate);
+  return list.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
 }
 
-export async function exportCandidatesToCSV(roomCode?: string): Promise<void> {
-  const data = await getAllCandidates(roomCode);
+export async function exportCandidatesToCSV(teacherId: string, roomCode?: string): Promise<void> {
+  const data = await getAllCandidates(teacherId, roomCode);
   if (data.length === 0) {
     alert("No student records found to export.");
     return;

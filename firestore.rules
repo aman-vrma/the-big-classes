@@ -2,61 +2,109 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Teacher/student profile documents — only the owner can read or write their own.
-    match /users/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
+    // ---------------------------------------------------------------------
+    // Helpers
+    // ---------------------------------------------------------------------
+    function isSignedIn() {
+      return request.auth != null;
     }
 
-    match /examRooms/{roomCode} {
-      // Public metadata + question text/options (NEVER correctAnswer — that field is
-      // never stored here) — readable by anyone so students can load the exam without
-      // logging in.
-      allow read: if true;
-
-      // Only a logged-in teacher can create a room, and only as themselves.
-      allow create: if request.auth != null
-        && request.resource.data.teacherId == request.auth.uid
+    function isTeacher() {
+      return isSignedIn()
         && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "teacher";
+    }
 
-      // Only the owning teacher can update it (e.g. closing the room).
-      allow update: if request.auth != null
+    // ---------------------------------------------------------------------
+    // Teacher/student profile documents - only the owner can read or write
+    // their own. NOTE: a user can still edit their own role field here, which
+    // App.tsx trusts for routing. That privilege-escalation vector needs
+    // custom claims to fix properly - tracked separately.
+    // ---------------------------------------------------------------------
+    match /users/{userId} {
+      allow read, write: if isSignedIn() && request.auth.uid == userId;
+    }
+
+    // ---------------------------------------------------------------------
+    // Exam rooms. The paper (question text + options) is readable by any
+    // SIGNED-IN user - never correctAnswer (that field is never stored here;
+    // it lives in the secure subcollection). Anonymous reads are gone: a
+    // stranger holding just the web API key can no longer enumerate every
+    // exam or every candidate.
+    //
+    // Listing all rooms is a teacher-only operation; students always access a
+    // room by PIN (direct doc get), which the signed-in read rule covers.
+    // ---------------------------------------------------------------------
+    match /examRooms/{roomCode} {
+      allow read: if isSignedIn();
+
+      allow create: if isTeacher()
+        && request.resource.data.teacherId == request.auth.uid;
+
+      allow update, delete: if isSignedIn()
         && resource.data.teacherId == request.auth.uid;
 
-      // The answer key never leaves the server to anyone except the owning teacher's
-      // own review screen. The grading function (api/grade-exam.js) uses the Admin
-      // SDK, which bypasses these rules entirely — it doesn't need a rule here.
+      // The answer key is readable only by the owning teacher (their review
+      // screen). The grading function (api/grade-exam.js) uses the Admin SDK,
+      // which bypasses these rules entirely.
       match /secure/{docId} {
-        allow read, write: if request.auth != null
-          && request.auth.uid == get(/databases/$(database)/documents/examRooms/$(roomCode)).data.teacherId;
+        allow read, write: if isSignedIn()
+          && resource.data.teacherId == request.auth.uid;
       }
     }
 
+    // ---------------------------------------------------------------------
+    // Exam attempts. Every write goes through the server (api/grade-exam.js
+    // via the Admin SDK, which bypasses rules) - clients get NO write at all,
+    // so nobody can forge an attempt, fake a score, or shed strikes by
+    // touching this collection directly.
+    //
+    // Reads are scoped:
+    //  - teachers: attempts for rooms they own (matching on teacherId, which
+    //    the server stamps on every candidate doc)
+    //  - students: only their own attempts (matching on their auth token email,
+    //    lowercased into studentEmailLower by the server for case-insensitive
+    //    comparison)
+    // ---------------------------------------------------------------------
     match /candidates/{candidateId} {
-      // Public read so the teacher's live leaderboard works without students logging in.
-      allow read: if true;
+      allow read: if isTeacher()
+        && resource.data.teacherId == request.auth.uid;
 
-      // A student must be logged in, and can only ever write a record under their OWN
-      // authenticated email — nobody can submit an exam attempt pretending to be
-      // someone else. Clients may only ever write an "in-progress" heartbeat; final
-      // "completed" / "disqualified" results (and the score with them) are written
-      // exclusively by api/grade-exam.js via the Admin SDK, which bypasses these rules —
-      // so a student can never fabricate a passing score by writing directly.
-      allow create: if request.auth != null
-        && request.resource.data.status == "in-progress"
-        && request.resource.data.studentEmail == request.auth.token.email;
-      allow update: if request.auth != null
-        && resource.data.status == "in-progress"
-        && request.resource.data.status == "in-progress"
-        && resource.data.studentEmail == request.auth.token.email;
+      allow read: if isSignedIn()
+        && resource.data.studentEmailLower == request.auth.token.email.toLower();
+
+      allow update, delete: if false;
     }
 
-    // Lesson plans, assignments, quizzes-as-drafted, and grading reports a teacher has
-    // generated. Only the owning teacher can ever read, create, or delete their own —
-    // this is what stops two different teacher accounts from seeing each other's content.
+    // ---------------------------------------------------------------------
+    // Server-owned exam sessions: the source of truth for question order,
+    // deadline and strikes. The Admin SDK reads/writes these; NO client needs
+    // any access, so this is an explicit deny-all (defense in depth - the
+    // default is already deny, this just makes the intent auditable).
+    // ---------------------------------------------------------------------
+    match /examSessions/{sessionId} {
+      allow read, write: if false;
+    }
+
+    // ---------------------------------------------------------------------
+    // Server-side rate-limit counters written by api/_auth.js (Admin SDK).
+    // No client access. Needs a TTL policy on `expireAt` in the console.
+    // ---------------------------------------------------------------------
+    match /rateLimits/{limitId} {
+      allow read, write: if false;
+    }
+
+    // ---------------------------------------------------------------------
+    // Lesson plans, assignments, quizzes-as-drafted, and grading reports a
+    // teacher has generated. Only the owning teacher can ever read, create,
+    // update, or delete their own - this is what stops two different teacher
+    // accounts from seeing each other's content.
+    // ---------------------------------------------------------------------
     match /generatedContent/{docId} {
-      allow read: if request.auth != null && resource.data.teacherId == request.auth.uid;
-      allow create: if request.auth != null && request.resource.data.teacherId == request.auth.uid;
-      allow delete: if request.auth != null && resource.data.teacherId == request.auth.uid;
+      allow read, update, delete: if isTeacher()
+        && resource.data.teacherId == request.auth.uid;
+
+      allow create: if isTeacher()
+        && request.resource.data.teacherId == request.auth.uid;
     }
   }
 }

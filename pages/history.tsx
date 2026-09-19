@@ -151,7 +151,7 @@ export function HistoryPage() {
     (async () => {
       try {
         const rooms = await getExamRoomsForTeacher(user.id);
-        const candidateLists = await Promise.all(rooms.map((r) => getAllCandidates(r.roomCode)));
+        const candidateLists = await Promise.all(rooms.map((r) => getAllCandidates(user.id, r.roomCode)));
         setExamRooms(rooms);
         setAllCandidates(candidateLists.flat());
         if (rooms.length > 0) {
@@ -201,7 +201,7 @@ export function HistoryPage() {
         {activeTab === "exams" && (
           <Button
             variant="outline"
-            onClick={() => exportCandidatesToCSV()}
+            onClick={() => exportCandidatesToCSV(user?.id || "")}
             className="border-paper-line-strong text-paper-ink-soft hover:bg-paper-3 flex items-center gap-1.5 shadow-sm"
           >
             <Download className="w-4 h-4 text-brand-600" />
@@ -364,7 +364,7 @@ export function HistoryPage() {
                     <Button
                       size="sm"
                       variant="outline"
-                      onClick={() => exportCandidatesToCSV(selectedRoom.roomCode)}
+                      onClick={() => exportCandidatesToCSV(user?.id || "", selectedRoom.roomCode)}
                       className="text-xs border-paper-line-strong"
                     >
                       <Download className="w-3.5 h-3.5 mr-1 text-brand-600" /> Export CSV

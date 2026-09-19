@@ -127,7 +127,7 @@ export function Quiz() {
   // Load and refresh candidates
   const loadCandidates = async (pin: string) => {
     try {
-      const data = await getAllCandidates(pin);
+      const data = await getAllCandidates(user?.id || "", pin);
       setCandidates(data);
       const room = await findExamRoom(pin);
       if (room) {

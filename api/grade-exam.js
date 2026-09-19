@@ -150,14 +150,22 @@ export default async function handler(req, res) {
     );
 
     // 5. Mirror into candidates/ for the teacher's existing dashboards, CSV and
-    //    history pages (which read that collection today).
+    //    history pages. Besides the UI fields, the server stamps the three
+    //    fields Firestore rules key scoped reads on:
+    //      teacherId          -> the owning teacher may read this attempt
+    //      studentEmailLower  -> the student may read their own attempt
+    //      topic / subject    -> student history labels without reading examRooms
     const candidatesRef = db.collection("candidates");
     const docId = safeId(`${cleanRoomCode}_${cleanEmail}`);
     await candidatesRef.doc(docId).set(
       {
         studentName: String(session.studentName || user.name || cleanEmail).trim(),
         studentEmail: cleanEmail,
+        studentEmailLower: cleanEmail,
         roomCode: cleanRoomCode,
+        teacherId: String(room?.teacherId || session.teacherId || ""),
+        topic: String(room?.topic || ""),
+        subject: String(room?.subject || ""),
         status,
         violations,
         score,
