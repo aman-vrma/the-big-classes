@@ -44,11 +44,12 @@ service cloud.firestore {
         && resource.data.teacherId == request.auth.uid;
 
       // The answer key is readable only by the owning teacher (their review
-      // screen). The grading function (api/grade-exam.js) uses the Admin SDK,
-      // which bypasses these rules entirely.
+      // screen). The key doc itself carries no teacherId, so the check reads
+      // the PARENT room's teacherId via get(). The grading function
+      // (api/grade-exam.js) uses the Admin SDK, which bypasses these rules.
       match /secure/{docId} {
         allow read, write: if isSignedIn()
-          && resource.data.teacherId == request.auth.uid;
+          && get(/databases/$(database)/documents/examRooms/$(roomCode)).data.teacherId == request.auth.uid;
       }
     }
 
