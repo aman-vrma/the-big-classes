@@ -1,3 +1,12 @@
+import { requireUser, enforceRateLimit, sendError } from "./_auth.js";
+
+// Generous enough for a teacher grading a whole class in one sitting, but tight
+// enough that a leaked URL cannot be used to burn through the AI quota.
+const RATE_LIMIT = { limit: 60, windowMs: 10 * 60 * 1000, label: "requests" };
+
+const MAX_PROMPT_CHARS = 40000;
+const MAX_IMAGE_CHARS = 8 * 1024 * 1024; // ~6MB of image data once base64-decoded
+
 async function callGemini(prompt, imageBase64, wantJson) {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) throw new Error("Server missing GEMINI_API_KEY");
@@ -69,7 +78,32 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  const { prompt, imageBase64, wantJson } = req.body;
+  // This endpoint spends the server's Gemini/OpenRouter credits, so it is only
+  // served to signed-in users — and only a limited number of times per window.
+  let user;
+  try {
+    user = await requireUser(req);
+  } catch (err) {
+    return sendError(res, err, "gemini auth");
+  }
+
+  const { prompt, imageBase64, wantJson } = req.body || {};
+
+  if (typeof prompt !== "string" || !prompt.trim()) {
+    return res.status(400).json({ error: "A non-empty prompt is required" });
+  }
+  if (prompt.length > MAX_PROMPT_CHARS) {
+    return res.status(413).json({ error: "Prompt is too long" });
+  }
+  if (imageBase64 != null && (typeof imageBase64 !== "string" || imageBase64.length > MAX_IMAGE_CHARS)) {
+    return res.status(413).json({ error: "Image is too large" });
+  }
+
+  try {
+    await enforceRateLimit(user.uid, RATE_LIMIT);
+  } catch (err) {
+    return sendError(res, err, "gemini rate limit");
+  }
 
   try {
     const data = await callGemini(prompt, imageBase64, wantJson);

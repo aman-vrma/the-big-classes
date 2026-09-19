@@ -15,3 +15,16 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
+
+/**
+ * Authorization header for the /api functions, which verify the Firebase ID
+ * token with the Admin SDK before doing any work. Tokens are cached by the SDK
+ * and refreshed automatically, so calling this per request is cheap.
+ */
+export async function getAuthHeaders(): Promise<Record<string, string>> {
+  const user = auth.currentUser;
+  if (!user) {
+    throw new Error("You must be signed in to do that");
+  }
+  return { Authorization: `Bearer ${await user.getIdToken()}` };
+}

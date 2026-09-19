@@ -1,10 +1,11 @@
 import { initializeApp, getApps, cert } from "firebase-admin/app";
 import { getFirestore } from "firebase-admin/firestore";
+import { getAuth } from "firebase-admin/auth";
 
 // Underscore-prefixed filename so Vercel does NOT expose this as its own
 // /api/_firebase-admin route — it's a shared helper for the other functions.
 
-function getAdminApp() {
+export function getAdminApp() {
   if (getApps().length) return getApps()[0];
 
   const raw = process.env.FIREBASE_SERVICE_ACCOUNT_KEY;
@@ -21,4 +22,8 @@ function getAdminApp() {
 
 export function getAdminDb() {
   return getFirestore(getAdminApp());
+}
+
+export function getAdminAuth() {
+  return getAuth(getAdminApp());
 }

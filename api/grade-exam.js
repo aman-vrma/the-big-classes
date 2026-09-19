@@ -1,4 +1,5 @@
 import { getAdminDb } from "./_firebase-admin.js";
+import { requireUser, enforceRateLimit, sendError } from "./_auth.js";
 
 // Firestore doc IDs can't contain "/" — same sanitizer as lib/room-store.ts
 function safeId(raw) {
@@ -18,6 +19,38 @@ export default async function handler(req, res) {
 
   const cleanRoomCode = String(roomCode).trim().toUpperCase();
   const cleanEmail = String(studentEmail).trim().toLowerCase();
+
+  if (answers != null && !Array.isArray(answers)) {
+    return res.status(400).json({ error: "answers must be an array" });
+  }
+
+  // This function runs on the Admin SDK, so it bypasses Firestore rules entirely.
+  // Without a verified token anyone could submit on a classmate's behalf.
+  let user;
+  try {
+    user = await requireUser(req);
+  } catch (err) {
+    return sendError(res, err, "grade-exam auth");
+  }
+
+  // The token's email is authoritative: you may only submit your own exam.
+  const tokenEmail = String(user.email || "").trim().toLowerCase();
+  if (!tokenEmail) {
+    return res.status(403).json({ error: "This account has no email address on file" });
+  }
+  if (tokenEmail !== cleanEmail) {
+    return res.status(403).json({ error: "You can only submit your own exam" });
+  }
+
+  try {
+    await enforceRateLimit(`exam_${user.uid}`, {
+      limit: 10,
+      windowMs: 10 * 60 * 1000,
+      label: "submissions",
+    });
+  } catch (err) {
+    return sendError(res, err, "grade-exam rate limit");
+  }
 
   try {
     const db = getAdminDb();
@@ -97,7 +130,6 @@ export default async function handler(req, res) {
 
     return res.status(200).json({ score, total: totalQuestions, percentage, status });
   } catch (err) {
-    console.error("grade-exam error:", err);
-    return res.status(500).json({ error: err.message || "Failed to grade exam" });
+    return sendError(res, err, "grade-exam");
   }
 }

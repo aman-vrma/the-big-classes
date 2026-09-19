@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { findExamRoom, updateCandidateStatus, hasStudentAttempted, ExamCandidate } from "../lib/room-store";
 import { useProctor } from "../hooks/use-proctor";
 import { useAuth } from "../lib/auth-context";
+import { getAuthHeaders } from "../lib/firebase";
 import { Card } from "../components/ui/card";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
@@ -35,6 +36,7 @@ export function StudentPortal() {
   const [examSubmitted, setExamSubmitted] = useState(false);
   const [pinError, setPinError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
 
   const [activeQuestions, setActiveQuestions] = useState<QuestionItem[]>([]);
   const [quizTitle, setQuizTitle] = useState("Proctored Examination");
@@ -184,11 +186,15 @@ export function StudentPortal() {
     // Lock the UI immediately so a slow network response can't let the student
     // keep answering (or double-submit) while grading is in flight.
     setExamSubmitted(true);
+    setSubmitError("");
 
     try {
+      // The server only grades a request carrying a verified Firebase ID token whose
+      // email matches the candidate, so this must be authenticated too.
+      const authHeaders = await getAuthHeaders();
       const res = await fetch("/api/grade-exam", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...authHeaders },
         body: JSON.stringify({
           roomCode: examPin.trim().toUpperCase(),
           studentName: studentName.trim(),
@@ -204,8 +210,9 @@ export function StudentPortal() {
       setScore(data.score);
     } catch (err) {
       console.error("Failed to grade exam:", err);
-      // The submission still went out; the teacher's live dashboard (backed by the
-      // same server write) remains the source of truth even if this response failed.
+      // Surface this instead of showing a fake 0/N score for a request the server
+      // never graded.
+      setSubmitError(err instanceof Error ? err.message : "Failed to submit exam");
     }
   };
 
@@ -222,6 +229,7 @@ export function StudentPortal() {
     setSelectedAnswers({});
     setCurrentQuestionIdx(0);
     setScore(0);
+    setSubmitError("");
     resetViolations();
     setExamPin("");
   };
@@ -474,24 +482,39 @@ export function StudentPortal() {
               </p>
             </div>
 
-            <div className="p-6 rounded-2xl bg-slate-950 border border-slate-800 space-y-2 max-w-xs mx-auto">
-              <p className="text-xs uppercase font-bold tracking-wider text-slate-400">Final Score</p>
-              <p className="text-4xl font-black text-blue-400 font-mono">
-                {score} / {activeQuestions.length}
-              </p>
-              <p className="text-xs font-semibold text-emerald-400">
-                {activeQuestions.length > 0 ? Math.round((score / activeQuestions.length) * 100) : 0}% Accuracy
-              </p>
-            </div>
+            {submitError ? (
+              <div className="p-5 rounded-2xl bg-red-950/40 border border-red-800/60 space-y-2 max-w-md mx-auto text-left">
+                <p className="text-xs uppercase font-bold tracking-wider text-red-300 flex items-center gap-1.5">
+                  <AlertTriangle className="w-3.5 h-3.5" /> Not graded
+                </p>
+                <p className="text-xs text-red-200/90 font-semibold">{submitError}</p>
+                <p className="text-[11px] text-slate-400">
+                  Your answers were not scored. Tell your faculty member — they can check the room roster
+                  and clear your attempt so you can retake it.
+                </p>
+              </div>
+            ) : (
+              <div className="p-6 rounded-2xl bg-slate-950 border border-slate-800 space-y-2 max-w-xs mx-auto">
+                <p className="text-xs uppercase font-bold tracking-wider text-slate-400">Final Score</p>
+                <p className="text-4xl font-black text-blue-400 font-mono">
+                  {score} / {activeQuestions.length}
+                </p>
+                <p className="text-xs font-semibold text-emerald-400">
+                  {activeQuestions.length > 0 ? Math.round((score / activeQuestions.length) * 100) : 0}% Accuracy
+                </p>
+              </div>
+            )}
 
             <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
-              <Button
-                onClick={handleDownloadPDF}
-                className="w-full sm:w-auto bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-8 rounded-xl shadow-lg shadow-blue-600/30 flex items-center justify-center gap-2"
-              >
-                <Download className="w-4 h-4" />
-                <span>Download Official Scorecard (PDF)</span>
-              </Button>
+              {!submitError && (
+                <Button
+                  onClick={handleDownloadPDF}
+                  className="w-full sm:w-auto bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-8 rounded-xl shadow-lg shadow-blue-600/30 flex items-center justify-center gap-2"
+                >
+                  <Download className="w-4 h-4" />
+                  <span>Download Official Scorecard (PDF)</span>
+                </Button>
+              )}
 
               <Button
                 onClick={handleBackToDesk}
