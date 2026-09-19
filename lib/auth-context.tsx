@@ -19,6 +19,12 @@ export interface User {
 interface AuthContextType {
   user: User | null;
   loading: boolean;
+  /**
+   * True while an account is being created. Creating an account briefly signs the
+   * new user in (Firebase needs an authenticated session to write their profile
+   * document), and this flag keeps the app shell hidden until we sign back out.
+   */
+  signupInProgress: boolean;
   // login now returns the account's REAL stored role, so the UI can verify
   // the person clicked the correct Faculty/Student card.
   login: (email: string, password: string) => Promise<"teacher" | "student">;
@@ -41,6 +47,7 @@ async function fetchUserProfile(uid: string): Promise<{ name?: string; role?: "t
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [signupInProgress, setSignupInProgress] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
@@ -67,19 +74,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signup = async (name: string, email: string, password: string, role: "teacher" | "student") => {
-    const credential = await createUserWithEmailAndPassword(auth, email.trim(), password);
-    await updateProfile(credential.user, { displayName: name });
-    await setDoc(doc(db, "users", credential.user.uid), {
-      name,
-      email: email.trim(),
-      role,
-    });
-    setUser({
-      id: credential.user.uid,
-      name,
-      email: credential.user.email || "",
-      role,
-    });
+    setSignupInProgress(true);
+    try {
+      const credential = await createUserWithEmailAndPassword(auth, email.trim(), password);
+      await updateProfile(credential.user, { displayName: name });
+
+      // Firestore only lets an authenticated user write their own profile doc, so
+      // the account has to be signed in for this one write.
+      await setDoc(doc(db, "users", credential.user.uid), {
+        name,
+        email: email.trim(),
+        role,
+      });
+
+      // ...and then immediately signed back out, so a brand new account has to
+      // log in deliberately the first time instead of dropping straight in.
+      await signOut(auth);
+      setUser(null);
+    } finally {
+      setSignupInProgress(false);
+    }
   };
 
   const logout = async () => {
@@ -87,7 +101,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, signup, logout }}>
+    <AuthContext.Provider value={{ user, loading, signupInProgress, login, signup, logout }}>
       {children}
     </AuthContext.Provider>
   );

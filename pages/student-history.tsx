@@ -57,17 +57,17 @@ export function StudentHistoryPage() {
     <div className="space-y-8 max-w-4xl mx-auto">
       <header className="border-b border-slate-800 pb-5">
         <h1 className="text-3xl font-serif font-bold text-white tracking-tight flex items-center gap-3">
-          <History className="w-7 h-7 text-blue-400" />
+          <History className="w-7 h-7 text-brand-400" />
           My Exam History
         </h1>
         <p className="text-slate-400 mt-1 text-sm">
-          Attempts made by <span className="text-blue-400 font-semibold">{user?.email}</span>
+          Attempts made by <span className="text-brand-400 font-semibold">{user?.email}</span>
         </p>
       </header>
 
       {loading && (
         <Card className="p-12 border-slate-800 bg-slate-900/90 rounded-2xl text-center">
-          <Loader2 className="w-6 h-6 text-blue-400 animate-spin mx-auto mb-2" />
+          <Loader2 className="w-6 h-6 text-brand-400 animate-spin mx-auto mb-2" />
           <p className="text-slate-400 text-sm">Loading your history...</p>
         </Card>
       )}
@@ -103,7 +103,7 @@ export function StudentHistoryPage() {
               <div className="flex items-center gap-4">
                 <div className="text-center px-4 py-2 rounded-xl bg-slate-950 border border-slate-800">
                   <p className="text-[10px] uppercase font-bold text-slate-500">Score</p>
-                  <p className="text-lg font-black text-blue-400 font-mono flex items-center gap-1 justify-center">
+                  <p className="text-lg font-black text-brand-400 font-mono flex items-center gap-1 justify-center">
                     <Award className="w-4 h-4" />
                     {r.score ?? 0}/{r.total ?? 0}
                   </p>

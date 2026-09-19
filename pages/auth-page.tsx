@@ -37,7 +37,9 @@ export function AuthPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
+  const [successMsg, setSuccessMsg] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
   const displayRole = hoverRole || selectedRole;
@@ -45,27 +47,56 @@ export function AuthPage() {
   const handleSelectRole = (role: "teacher" | "student") => {
     setSelectedRole(role);
     setErrorMsg("");
+    setSuccessMsg("");
     setEmail("");
     setPassword("");
+    setConfirmPassword("");
     setName("");
     setMode("login");
     setActiveStep("auth");
   };
 
+  const switchMode = (next: "login" | "signup") => {
+    setMode(next);
+    setErrorMsg("");
+    setSuccessMsg("");
+    setPassword("");
+    setConfirmPassword("");
+  };
+
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg("");
+    setSuccessMsg("");
 
     if (!email.trim() || !password.trim() || (mode === "signup" && !name.trim())) {
       setErrorMsg("Please fill in all fields.");
       return;
     }
 
+    if (mode === "signup") {
+      if (password.length < 6) {
+        setErrorMsg("Password should be at least 6 characters.");
+        return;
+      }
+      if (password !== confirmPassword) {
+        setErrorMsg("The two passwords don't match.");
+        return;
+      }
+    }
+
     setSubmitting(true);
     try {
       if (mode === "signup") {
+        // Creating the account deliberately does NOT sign the user in — they are
+        // sent back to the login form so they enter with the credentials they
+        // just chose (and so a typo can't lock them into a session they can't
+        // reproduce).
         await signup(name.trim(), email.trim(), password, selectedRole);
-        setLocation(selectedRole === "teacher" ? "/" : "/student");
+        setMode("login");
+        setPassword("");
+        setConfirmPassword("");
+        setSuccessMsg(`Account created for ${email.trim()}. Log in below to continue.`);
       } else {
         const actualRole = await login(email.trim(), password);
         if (actualRole !== selectedRole) {
@@ -293,14 +324,14 @@ export function AuthPage() {
             <div style={{ display: "flex", borderRadius: 12, overflow: "hidden", border: "1.5px solid #ECE7DC", marginBottom: 20 }}>
               <button
                 type="button"
-                onClick={() => { setMode("login"); setErrorMsg(""); }}
+                onClick={() => switchMode("login")}
                 style={{ flex: 1, padding: "10px 0", fontSize: 13, fontWeight: 700, border: "none", cursor: "pointer", background: mode === "login" ? accent : "#FAFAF7", color: mode === "login" ? "#fff" : "#9C9483" }}
               >
                 Log In
               </button>
               <button
                 type="button"
-                onClick={() => { setMode("signup"); setErrorMsg(""); }}
+                onClick={() => switchMode("signup")}
                 style={{ flex: 1, padding: "10px 0", fontSize: 13, fontWeight: 700, border: "none", cursor: "pointer", background: mode === "signup" ? accent : "#FAFAF7", color: mode === "signup" ? "#fff" : "#9C9483" }}
               >
                 Sign Up
@@ -363,9 +394,35 @@ export function AuthPage() {
                 </div>
               </div>
 
+              {mode === "signup" && (
+                <div>
+                  <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#8A8272", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>
+                    Confirm Password
+                  </label>
+                  <div style={{ position: "relative" }}>
+                    <Lock style={{ position: "absolute", left: 14, top: 14, width: 16, height: 16, color: "#B0A996" }} />
+                    <Input
+                      type="password"
+                      required
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      placeholder="••••••••"
+                      className="pl-10 h-11 text-sm rounded-xl"
+                      style={{ background: "#FBFAF7", border: "1.5px solid #ECE7DC", color: "#2B2620" }}
+                    />
+                  </div>
+                </div>
+              )}
+
               {errorMsg && (
                 <p style={{ fontSize: 12, fontWeight: 600, color: "#B8471E", background: "#FDF1EC", border: "1px solid #F3D7C6", padding: 10, borderRadius: 10 }}>
                   {errorMsg}
+                </p>
+              )}
+
+              {successMsg && (
+                <p style={{ fontSize: 12, fontWeight: 600, color: "#256B47", background: "#EFFAF3", border: "1px solid #C6EBD6", padding: 10, borderRadius: 10 }}>
+                  {successMsg}
                 </p>
               )}
 
@@ -381,7 +438,9 @@ export function AuthPage() {
 
             <div style={{ marginTop: 18, paddingTop: 16, borderTop: "1px solid #F2EFE6", textAlign: "center" }}>
               <p style={{ fontSize: 11, color: "#B0A996" }}>
-                {mode === "login" ? "Don't have an account? Click Sign Up above." : "Already have an account? Click Log In above."}
+                {mode === "login"
+                  ? "Don't have an account? Click Sign Up above — you'll log in with it right after."
+                  : "Creating an account takes you back to the login form, so you can sign in with the password you choose."}
               </p>
             </div>
           </div>

@@ -39,7 +39,7 @@ import {
 } from "lucide-react";
 
 const TYPE_META: Record<string, { label: string; icon: any; color: string }> = {
-  quiz: { label: "Quiz", icon: CheckSquare, color: "text-blue-600 bg-blue-50 border-blue-200" },
+  quiz: { label: "Quiz", icon: CheckSquare, color: "text-brand-600 bg-brand-50 border-brand-200" },
   "lesson-plan": { label: "Lesson Plan", icon: BookOpen, color: "text-emerald-600 bg-emerald-50 border-emerald-200" },
   assignment: { label: "Assignment", icon: FileText, color: "text-purple-600 bg-purple-50 border-purple-200" },
   grade: { label: "Grade", icon: GraduationCap, color: "text-amber-600 bg-amber-50 border-amber-200" },
@@ -204,7 +204,7 @@ export function HistoryPage() {
             onClick={() => exportCandidatesToCSV()}
             className="border-slate-300 text-slate-700 hover:bg-slate-100 flex items-center gap-1.5 shadow-sm"
           >
-            <Download className="w-4 h-4 text-blue-600" />
+            <Download className="w-4 h-4 text-brand-600" />
             Export All History (CSV)
           </Button>
         )}
@@ -216,7 +216,7 @@ export function HistoryPage() {
           onClick={() => setActiveTab("exams")}
           className={`px-4 py-2.5 text-sm font-semibold border-b-2 transition-colors ${
             activeTab === "exams"
-              ? "border-blue-600 text-blue-700"
+              ? "border-brand-600 text-brand-700"
               : "border-transparent text-slate-500 hover:text-slate-800"
           }`}
         >
@@ -226,7 +226,7 @@ export function HistoryPage() {
           onClick={() => setActiveTab("generated")}
           className={`px-4 py-2.5 text-sm font-semibold border-b-2 transition-colors ${
             activeTab === "generated"
-              ? "border-blue-600 text-blue-700"
+              ? "border-brand-600 text-brand-700"
               : "border-transparent text-slate-500 hover:text-slate-800"
           }`}
         >
@@ -244,7 +244,7 @@ export function HistoryPage() {
                 onClick={() => setTypeFilter(key)}
                 className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors ${
                   typeFilter === key
-                    ? "bg-blue-600 border-blue-600 text-white"
+                    ? "bg-brand-600 border-brand-600 text-white"
                     : "bg-white border-slate-200 text-slate-600 hover:border-slate-300"
                 }`}
               >
@@ -288,7 +288,7 @@ export function HistoryPage() {
           <p className="text-xs text-slate-500 max-w-sm mx-auto">
             Jab aap Quiz Arena se exam host karenge aur students PIN enter karke test denge, tab saara data yahan aayega.
           </p>
-          <Button onClick={() => setLocation("/quiz")} className="bg-blue-600 text-white text-xs mt-2">
+          <Button onClick={() => setLocation("/quiz")} className="bg-brand-600 text-white text-xs mt-2">
             Go to Quiz Arena
           </Button>
         </Card>
@@ -315,12 +315,12 @@ export function HistoryPage() {
                   onClick={() => setSelectedRoom(room)}
                   className={`p-4 rounded-xl border transition-all cursor-pointer ${
                     isSelected
-                      ? "bg-blue-50/80 border-blue-500 shadow-sm ring-1 ring-blue-500"
+                      ? "bg-brand-50/80 border-brand-500 shadow-sm ring-1 ring-brand-500"
                       : "bg-white border-slate-200 hover:border-slate-300"
                   }`}
                 >
                   <div className="flex items-center justify-between">
-                    <span className="font-mono text-xs font-bold text-blue-700 bg-white px-2 py-0.5 rounded border border-blue-200">
+                    <span className="font-mono text-xs font-bold text-brand-700 bg-white px-2 py-0.5 rounded border border-brand-200">
                       PIN: {room.roomCode}
                     </span>
                     <span className="text-[10px] text-slate-400 flex items-center gap-1">
@@ -336,7 +336,7 @@ export function HistoryPage() {
                       <Clock className="w-3 h-3" /> {room.durationMinutes || 10} Mins
                     </span>
                     <span className="font-semibold text-slate-700 flex items-center gap-0.5">
-                      <Users className="w-3 h-3 text-blue-600" /> {roomCandidates.length} Students
+                      <Users className="w-3 h-3 text-brand-600" /> {roomCandidates.length} Students
                       <ChevronRight className="w-3 h-3 ml-1" />
                     </span>
                   </div>
@@ -367,12 +367,12 @@ export function HistoryPage() {
                       onClick={() => exportCandidatesToCSV(selectedRoom.roomCode)}
                       className="text-xs border-slate-300"
                     >
-                      <Download className="w-3.5 h-3.5 mr-1 text-blue-600" /> Export CSV
+                      <Download className="w-3.5 h-3.5 mr-1 text-brand-600" /> Export CSV
                     </Button>
                     <Button
                       size="sm"
                       onClick={() => handleOpenInLive(selectedRoom)}
-                      className="bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold"
+                      className="bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold"
                     >
                       <Play className="w-3.5 h-3.5 mr-1" /> Reopen in Quiz Arena
                     </Button>
@@ -383,7 +383,7 @@ export function HistoryPage() {
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-                      <Users className="w-4 h-4 text-blue-600" /> Candidate Evaluation Sheet ({candidatesForRoom.length})
+                      <Users className="w-4 h-4 text-brand-600" /> Candidate Evaluation Sheet ({candidatesForRoom.length})
                     </h3>
                   </div>
 
@@ -436,7 +436,7 @@ export function HistoryPage() {
                                 {cand.status === "disqualified" ? (
                                   <span className="text-red-600">0 (Expelled)</span>
                                 ) : (
-                                  <span className="text-blue-700">
+                                  <span className="text-brand-700">
                                     {cand.score} / {cand.total} ({cand.percentage}%)
                                   </span>
                                 )}

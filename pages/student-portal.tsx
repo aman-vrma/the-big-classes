@@ -307,7 +307,7 @@ export function StudentPortal() {
         <div className="pt-10">
           <Card className="p-8 border-slate-800 bg-slate-900/90 shadow-2xl rounded-2xl">
             <div className="text-center mb-8 space-y-2">
-              <div className="w-14 h-14 rounded-2xl bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-blue-400 mx-auto mb-3">
+              <div className="w-14 h-14 rounded-2xl bg-brand-600/20 border border-brand-500/30 flex items-center justify-center text-brand-400 mx-auto mb-3">
                 <ShieldCheck className="w-7 h-7" />
               </div>
               <h1 className="text-2xl font-bold text-white tracking-tight">Student Exam Portal</h1>
@@ -316,7 +316,7 @@ export function StudentPortal() {
 
             <form onSubmit={handleStartExam} className="space-y-5">
               <div className="p-3.5 rounded-xl bg-slate-800/60 border border-slate-700 flex items-center gap-3">
-                <div className="w-9 h-9 rounded-full bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-blue-400 shrink-0">
+                <div className="w-9 h-9 rounded-full bg-brand-600/20 border border-brand-500/30 flex items-center justify-center text-brand-400 shrink-0">
                   <User className="w-4 h-4" />
                 </div>
                 <div className="min-w-0">
@@ -330,7 +330,7 @@ export function StudentPortal() {
 
               <div>
                 <label className="block text-xs font-bold text-slate-200 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
-                  <Hash className="w-3.5 h-3.5 text-blue-400" />
+                  <Hash className="w-3.5 h-3.5 text-brand-400" />
                   6-Digit Exam Room PIN
                 </label>
                 <Input
@@ -349,9 +349,9 @@ export function StudentPortal() {
                 </p>
               )}
 
-              <div className="p-3.5 rounded-xl bg-blue-950/30 border border-blue-800/40 text-xs text-slate-300 space-y-1">
-                <p className="font-semibold text-blue-300 flex items-center gap-1.5">
-                  <AlertTriangle className="w-3.5 h-3.5 text-blue-400" />
+              <div className="p-3.5 rounded-xl bg-brand-950/30 border border-brand-800/40 text-xs text-slate-300 space-y-1">
+                <p className="font-semibold text-brand-300 flex items-center gap-1.5">
+                  <AlertTriangle className="w-3.5 h-3.5 text-brand-400" />
                   Anti-Cheating Regulations:
                 </p>
                 <p>• Navigating out of the active window triggers an automatic strike.</p>
@@ -361,7 +361,7 @@ export function StudentPortal() {
               <Button
                 type="submit"
                 disabled={submitting}
-                className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 text-sm rounded-xl shadow-lg shadow-blue-600/30 transition-all disabled:opacity-60 flex items-center justify-center gap-2"
+                className="w-full bg-brand-600 hover:bg-brand-500 text-white font-bold py-3 text-sm rounded-xl shadow-lg shadow-brand-600/30 transition-all disabled:opacity-60 flex items-center justify-center gap-2"
               >
                 {submitting ? (
                   <>
@@ -402,7 +402,7 @@ export function StudentPortal() {
           <Card className="p-8 border-slate-800 bg-slate-900/90 shadow-2xl rounded-2xl">
             <div className="flex justify-between items-center mb-4 text-xs font-bold text-slate-400 border-b border-slate-800 pb-3">
               <span>Question {currentQuestionIdx + 1} of {activeQuestions.length}</span>
-              <span className="text-blue-400 font-semibold">{studentName} ({studentEmail})</span>
+              <span className="text-brand-400 font-semibold">{studentName} ({studentEmail})</span>
             </div>
 
             <h2 className="text-lg font-bold text-white mb-6 leading-relaxed">
@@ -419,14 +419,14 @@ export function StudentPortal() {
                     onClick={() => handleSelectOption(idx)}
                     className={`w-full text-left p-4 rounded-xl border text-sm font-semibold transition-all flex items-center justify-between ${
                       isSelected
-                        ? "bg-blue-600/20 border-blue-500 text-white shadow-md shadow-blue-500/10"
+                        ? "bg-brand-600/20 border-brand-500 text-white shadow-md shadow-brand-500/10"
                         : "bg-slate-800 border-slate-600 text-slate-100 hover:bg-slate-700 hover:text-white"
                     }`}
                   >
                     <span className={isSelected ? "text-white" : "text-slate-100"}>{option}</span>
                     <div
                       className={`w-5 h-5 rounded-full border flex items-center justify-center ${
-                        isSelected ? "border-blue-400 bg-blue-600 text-white" : "border-slate-700"
+                        isSelected ? "border-brand-400 bg-brand-600 text-white" : "border-slate-700"
                       }`}
                     >
                       {isSelected && <div className="w-2 h-2 rounded-full bg-white" />}
@@ -449,7 +449,7 @@ export function StudentPortal() {
               {currentQuestionIdx < activeQuestions.length - 1 ? (
                 <Button
                   onClick={() => setCurrentQuestionIdx((p) => p + 1)}
-                  className="bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold px-6"
+                  className="bg-brand-600 hover:bg-brand-500 text-white text-xs font-bold px-6"
                 >
                   Next Question
                 </Button>
@@ -496,7 +496,7 @@ export function StudentPortal() {
             ) : (
               <div className="p-6 rounded-2xl bg-slate-950 border border-slate-800 space-y-2 max-w-xs mx-auto">
                 <p className="text-xs uppercase font-bold tracking-wider text-slate-400">Final Score</p>
-                <p className="text-4xl font-black text-blue-400 font-mono">
+                <p className="text-4xl font-black text-brand-400 font-mono">
                   {score} / {activeQuestions.length}
                 </p>
                 <p className="text-xs font-semibold text-emerald-400">
@@ -509,7 +509,7 @@ export function StudentPortal() {
               {!submitError && (
                 <Button
                   onClick={handleDownloadPDF}
-                  className="w-full sm:w-auto bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-8 rounded-xl shadow-lg shadow-blue-600/30 flex items-center justify-center gap-2"
+                  className="w-full sm:w-auto bg-brand-600 hover:bg-brand-500 text-white font-bold py-3 px-8 rounded-xl shadow-lg shadow-brand-600/30 flex items-center justify-center gap-2"
                 >
                   <Download className="w-4 h-4" />
                   <span>Download Official Scorecard (PDF)</span>

@@ -79,7 +79,7 @@ export function Grade() {
 
   const getScoreColor = (percentage: number) => {
     if (percentage >= 90) return "text-emerald-600 bg-emerald-50 border-emerald-200";
-    if (percentage >= 75) return "text-blue-600 bg-blue-50 border-blue-200";
+    if (percentage >= 75) return "text-brand-600 bg-brand-50 border-brand-200";
     if (percentage >= 60) return "text-amber-600 bg-amber-50 border-amber-200";
     return "text-red-600 bg-red-50 border-red-200";
   };
@@ -153,7 +153,7 @@ export function Grade() {
                       className="w-full flex items-center gap-2"
                       onClick={() => fileInputRef.current?.click()}
                     >
-                      <Camera className="w-4 h-4 text-blue-600" />
+                      <Camera className="w-4 h-4 text-brand-600" />
                       Take Photo / Upload Sheet
                     </Button>
                   </div>
