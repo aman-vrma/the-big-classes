@@ -8,6 +8,7 @@ import { Markdown } from "../components/markdown";
 import { useQueryClient } from "@tanstack/react-query";
 import { getGetClassroomHistoryQueryKey, saveClassroomHistoryItem } from "../lib/api-client";
 import { useAuth } from "../lib/auth-context";
+import { garbageAwareSchema } from "../lib/validate";
 
 import { Card } from "../components/ui/card";
 import { Button } from "../components/ui/button";
@@ -23,12 +24,14 @@ import { Input } from "../components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
 import { BookOpen, Loader2 } from "lucide-react";
 
-const formSchema = z.object({
-  topic: z.string().min(2, "Topic is required"),
-  subject: z.string().min(2, "Subject is required"),
-  gradeLevel: z.string().min(1, "Grade level is required"),
-  duration: z.string().optional(),
-});
+const formSchema = garbageAwareSchema(
+  z.object({
+    topic: z.string().min(2, "Topic is required"),
+    subject: z.string().min(2, "Subject is required"),
+    gradeLevel: z.string().min(1, "Grade level is required"),
+    duration: z.string().optional(),
+  })
+);
 
 export function LessonPlan() {
   const { content, isStreaming, startStream } = useStream();

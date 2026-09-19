@@ -5,6 +5,7 @@ import * as z from "zod";
 import { useQueryClient } from "@tanstack/react-query";
 import { useGradeAnswer, getGetClassroomHistoryQueryKey, type GradeResult } from "../lib/api-client";
 import { useAuth } from "../lib/auth-context";
+import { garbageAwareSchema } from "../lib/validate";
 import { Card } from "../components/ui/card";
 import { Button } from "../components/ui/button";
 import {
@@ -20,13 +21,15 @@ import { Textarea } from "../components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
 import { GraduationCap, Loader2, CheckCircle, AlertCircle, Camera, Image as ImageIcon, X } from "lucide-react";
 
-const formSchema = z.object({
-  question: z.string().min(2, "Question is required"),
-  studentAnswer: z.string().optional(),
-  rubric: z.string().optional(),
-  maxMarks: z.coerce.number().min(1).max(100),
-  strictness: z.enum(["lenient", "moderate", "strict"]),
-});
+const formSchema = garbageAwareSchema(
+  z.object({
+    question: z.string().min(2, "Question is required"),
+    studentAnswer: z.string().optional(),
+    rubric: z.string().optional(),
+    maxMarks: z.coerce.number().min(1).max(100),
+    strictness: z.enum(["lenient", "moderate", "strict"]),
+  })
+);
 
 export function Grade() {
   const [result, setResult] = useState<GradeResult | null>(null);

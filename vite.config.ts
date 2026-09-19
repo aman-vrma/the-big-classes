@@ -15,4 +15,8 @@ export default defineConfig({
     port: 5173,
     host: true,
   },
+  // Test-only hook: exposes the garbage validator for browser-console tests.
+  define: {
+    __GARBAGE_VALIDATOR__: "true",
+  },
 });

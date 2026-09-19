@@ -52,17 +52,20 @@ import {
   CheckCircle2
 } from "lucide-react";
 import * as pdfjsLib from "pdfjs-dist";
+import { garbageAwareSchema, looksLikeGarbage, describeGarbage } from "../lib/validate";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.mjs`;
 
-const formSchema = z.object({
-  topic: z.string().optional(),
-  subject: z.string().optional(),
-  numberOfQuestions: z.coerce.number().min(1),
-  difficulty: z.enum(["easy", "medium", "hard"]),
-  durationMinutes: z.coerce.number().min(1).max(60),
-  sourceContext: z.string().optional(),
-});
+const formSchema = garbageAwareSchema(
+  z.object({
+    topic: z.string().optional(),
+    subject: z.string().optional(),
+    numberOfQuestions: z.coerce.number().min(1),
+    difficulty: z.enum(["easy", "medium", "hard"]),
+    durationMinutes: z.coerce.number().min(1).max(60),
+    sourceContext: z.string().optional(),
+  })
+);
 
 const ACTIVE_QUIZ_STORAGE_KEY = "ai_classroom_active_teacher_quiz";
 
@@ -190,8 +193,15 @@ export function Quiz() {
   };
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
-    if (!values.sourceContext && !values.topic) {
-      alert("Please provide a Topic or upload a PDF/Notes file.");
+    // No PDF and no real topic typed → refuse before spending AI credits.
+    if (!values.sourceContext?.trim() && !values.topic?.trim()) {
+      form.setError("topic", { message: "Enter a topic or upload a PDF/syllabus first" });
+      return;
+    }
+    // An upload with no topic typed is fine, but pure gibberish in the optional
+    // topic still gets stopped here (the schema can't know context).
+    if (values.topic?.trim() && looksLikeGarbage(values.topic)) {
+      form.setError("topic", { message: describeGarbage("Topic") });
       return;
     }
 
